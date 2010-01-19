@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\oled.ewp</path>
+  </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>buildAll</name>
+      <member>
+        <project>oled</project>
+        <configuration>RAM_Debug</configuration>
+      </member>
+      <member>
+        <project>oled</project>
+        <configuration>Flash_Debug</configuration>
+      </member>
+      <member>
+        <project>oled</project>
+        <configuration>Flash_Hex</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
+</workspace>
+
+
