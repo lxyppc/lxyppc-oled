@@ -82,7 +82,7 @@ void SSD1303_Init(void)
   WriteCommand(0x40); /* Set Display Start Line */
   // Contrast Control Register
   WriteCommand(0x81); /* Set Contrast Control */
-  WriteCommand(0x2f); /* 0 ~ 255 0x1f*/
+  WriteCommand(0x1f); /* 0 ~ 255 0x1f*/
   // Re-map
   WriteCommand(0xA1); /* [A0]:column address 0 is map 
   to SEG0 , [A1]: columnaddress 131 is map to SEG0*/ 
