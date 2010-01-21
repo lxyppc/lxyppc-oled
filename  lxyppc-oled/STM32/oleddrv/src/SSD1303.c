@@ -13,21 +13,10 @@
 *******************************************************************************/
 void WriteCommand(unsigned char command)
 {
-  unsigned char i;
   SSD_A0_Low();
   SlightDelay();
-  for(i=0x80;i>0;i>>=1){
-    SSD_Clk_Low();
-    SlightDelay();
-    if(command & i){
-      SSD_Data_High();
-    }else{
-      SSD_Data_Low();
-    }
-    SlightDelay();
-    SSD_Clk_High();
-    SlightDelay();
-  }
+  SPI_SendByte(command);
+  SPI_Wait();
 }
 
 /*******************************************************************************
@@ -39,22 +28,10 @@ void WriteCommand(unsigned char command)
 *******************************************************************************/
 void WriteData(unsigned char data)
 {
-  unsigned char i;
   SSD_A0_High();
   SlightDelay();
-  for(i=0x80;i>0;i>>=1){
-    SSD_Clk_Low();
-    SlightDelay();
-    if(data & i){
-      SSD_Data_High();
-    }else{
-      SSD_Data_Low();
-    }
-    SlightDelay();
-    SSD_Clk_High();
-    SlightDelay();
-  }
-  //SSD_CS_High();
+  SPI_SendByte(data);
+  SPI_Wait();
 }
 
 /*******************************************************************************

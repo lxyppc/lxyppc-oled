@@ -18,7 +18,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void RCC_Configuration(void);
 void NVIC_Configuration(void);
-void IO_Configuration(void);
+void SSD1303_IO_Configuration(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -51,8 +51,8 @@ int main(void)
   /* NVIC configuration */
   NVIC_Configuration();
   
-  IO_Configuration();
-  SSD_CS_Low();
+  SSD1303_IO_Configuration();
+  
   SSD1303_Init();
   
 //  WriteCommand(0xAD); /* Set DC-DC */
@@ -94,7 +94,11 @@ void  ShowData(u8 col, u8 set)
   unsigned char dd = set ? 0xFF : 0x00;
     WriteCommand (0xb0+col);  // Set page address
     WriteCommand (0x02);      // Set Column low address
-    WriteCommand (0x10);      // Set Column high address
+    if(set){
+      WriteCommand (0x10 + col);      // Set Column high address
+    }else{
+      WriteCommand (0x10);      // Set Column high address
+    }
     for(j=0;j<128;j++){
       WriteData(dd);
     }
@@ -183,23 +187,43 @@ void NVIC_Configuration(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void IO_Configuration(void)
-{
+void SSD1303_IO_Configuration(void)
+{ 
+  SPI_InitTypeDef  SPI_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
+  
+  /* Enable SPI1 and GPIO clocks */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2,ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD,ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOG,ENABLE);
   
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  SPI_I2S_DeInit(SPI2);
+  
+  /* Configure SPI2 pins: SCK, MOSI */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_15;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15;
-  //GPIO_Init(GPIOD, &GPIO_InitStructure);
-  
-  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  //GPIO_Init(GPIOG, &GPIO_InitStructure);
+  /* Configure SSD1303 pins: RES,A0*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  /* SPI1 configuration */
+  SPI_InitStructure.SPI_Direction = SPI_Direction_1Line_Tx;
+  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+  SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
+  SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
+  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
+  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+  SPI_InitStructure.SPI_CRCPolynomial = 7;
+  //SPI_Init(SPI1, &SPI_InitStructure);
+  SPI_Init(SPI2, &SPI_InitStructure);
+
+  /* Enable SPI1  */
+  SPI_Cmd(SPI2, ENABLE);
 }
 
 #ifdef  DEBUG
