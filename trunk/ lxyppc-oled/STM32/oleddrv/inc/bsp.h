@@ -15,8 +15,8 @@ D1/Data 3  4  D0/Clk
    CS  15 16  C86 (1-8080, 0-SPI)
 
        STM32
-  D0/Clk    PB13
-  D1/Data   PB15
+  D0/Clk    PB13/SPI2 Clk
+  D1/Data   PB15/SPI2 MOSI
   RES       PB12
   A0        PB14
   CS        Gnd
@@ -41,5 +41,8 @@ D1/Data 3  4  D0/Clk
 #define   SSD_A0_High()     GPIOB->BSRR = GPIO_Pin_14
 #define   SSD_CS_Low()      //GPIOG->BRR = GPIO_Pin_2
 #define   SSD_CS_High()     //GPIOG->BSRR = GPIO_Pin_2
+
+#define   SPI_SendByte(data)  SPI2->DR = (data)
+#define   SPI_Wait()           while(!(SPI2->SR&SPI_I2S_FLAG_TXE));while(SPI2->SR&SPI_I2S_FLAG_BSY);
 
 #endif
