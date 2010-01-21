@@ -45,4 +45,6 @@ D1/Data 3  4  D0/Clk
 #define   SPI_SendByte(data)  SPI2->DR = (data)
 #define   SPI_Wait()           while(!(SPI2->SR&SPI_I2S_FLAG_TXE));while(SPI2->SR&SPI_I2S_FLAG_BSY);
 
+#define   SSD1303_FPS                   50
+
 #endif

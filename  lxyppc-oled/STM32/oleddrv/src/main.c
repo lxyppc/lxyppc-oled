@@ -19,10 +19,9 @@
 void RCC_Configuration(void);
 void NVIC_Configuration(void);
 void SSD1303_IO_Configuration(void);
+void SSD1303_Controller_Init(void);
 
 /* Private functions ---------------------------------------------------------*/
-
-void  ShowData(u8 col, u8 set);
 
 /*******************************************************************************
 * Function Name  : main
@@ -31,6 +30,7 @@ void  ShowData(u8 col, u8 set);
 * Output         : None
 * Return         : None
 *******************************************************************************/
+void  OnPageTransferDone(void);
 int main(void)
 {
 #ifdef DEBUG
@@ -40,30 +40,24 @@ int main(void)
   /* System Clocks Configuration */
   RCC_Configuration();
   GPIO_AFIODeInit();
-  GPIO_DeInit(GPIOA);
   GPIO_DeInit(GPIOB);
-  GPIO_DeInit(GPIOC);
-  GPIO_DeInit(GPIOD);
-  GPIO_DeInit(GPIOE);
-  GPIO_DeInit(GPIOF);
-  GPIO_DeInit(GPIOG);
   
   /* NVIC configuration */
   NVIC_Configuration();
   
+  /* Initialize the SSD1303 related IO */
   SSD1303_IO_Configuration();
   
+  /* Initialize the SSD1303 */
   SSD1303_Init();
   
-//  WriteCommand(0xAD); /* Set DC-DC */
-//  WriteCommand(0x8B); /* 8B=ON, 8A=Off */
-  
-  WriteCommand(0xaf);   //open display
-  
-  u32 k = 0;
+  /* Initialize the SSD1303 controller,
+     which is simulated by STM32 DMA and systick*/
+  SSD1303_Controller_Init();
   
   while(1)
   {
+    static u32 k = 0;
     k++;
     if(k&1){
       ShowData(0,1);
@@ -86,22 +80,6 @@ int main(void)
     }
     for(u32 i=2000000;--i;);
   }
-}
-
-void  ShowData(u8 col, u8 set)
-{
-  unsigned char j;
-  unsigned char dd = set ? 0xFF : 0x00;
-    WriteCommand (0xb0+col);  // Set page address
-    WriteCommand (0x02);      // Set Column low address
-    if(set){
-      WriteCommand (0x10 + col);      // Set Column high address
-    }else{
-      WriteCommand (0x10);      // Set Column high address
-    }
-    for(j=0;j<128;j++){
-      WriteData(dd);
-    }
 }
 
 /*******************************************************************************
@@ -181,8 +159,8 @@ void NVIC_Configuration(void)
 }
 
 /*******************************************************************************
-* Function Name  : IO_Configuration
-* Description    : Configure the IO controller.
+* Function Name  : SSD1303_IO_Configuration
+* Description    : Configure the IO used for SSD1303.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -221,10 +199,55 @@ void SSD1303_IO_Configuration(void)
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   //SPI_Init(SPI1, &SPI_InitStructure);
   SPI_Init(SPI2, &SPI_InitStructure);
+  
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
 
   /* Enable SPI1  */
   SPI_Cmd(SPI2, ENABLE);
 }
+
+/*******************************************************************************
+* Function Name  : SSD1303_Controller_Init
+* Description    : Initialize the oled controller, which is simulated by STM32.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void  SSD1303_Controller_Init(void)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+  DMA_InitTypeDef  DMA_InitStructure;
+  
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  
+  DMA_DeInit(DMA1_Channel5);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)(&SPI2->DR);
+  DMA_InitStructure.DMA_MemoryBaseAddr = 0;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+  DMA_InitStructure.DMA_BufferSize = 1;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel5, &DMA_InitStructure);
+  
+  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel5_IRQChannel;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  DMA_ITConfig(DMA1_Channel5, DMA_IT_TC, ENABLE);
+  
+  SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
+  SysTick_SetReload(72000000/SSD1303_FPS);
+  SysTick_ITConfig(ENABLE);
+  SysTick_CounterCmd(SysTick_Counter_Enable);
+}
+
 
 #ifdef  DEBUG
 /*******************************************************************************
