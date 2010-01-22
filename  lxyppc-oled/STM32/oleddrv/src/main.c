@@ -15,6 +15,22 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static const FontData world[2] = {
+    /* Char  Code  width, height,  {data}  */
+    {/* 世  0x0000*/      16,    16, {
+                   0x20,0x20,0x20,0xFE,0x20,0x20,0xFE,0x20,
+                   0x20,0x20,0x20,0xFE,0x20,0x20,0x20,0x00,
+                   0x00,0x00,0x00,0x3F,0x20,0x20,0x27,0x22,
+                   0x22,0x22,0x22,0x27,0x30,0x20,0x00,0x00,
+                   }},
+    {/* 界  0x0001*/      16,    16, {
+                   0x00,0x00,0x00,0xFF,0x49,0x49,0x49,0xFF,
+                   0xC9,0x49,0x49,0x49,0xFF,0x00,0x00,0x00,
+                   0x00,0x08,0x08,0x84,0x44,0x22,0x1D,0x00,
+                   0x00,0xFD,0x02,0x02,0x04,0x0C,0x04,0x00,
+                   }},
+};
+
 /* Private function prototypes -----------------------------------------------*/
 void RCC_Configuration(void);
 void NVIC_Configuration(void);
@@ -30,7 +46,6 @@ void SSD1303_Controller_Init(void);
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void  OnPageTransferDone(void);
 int main(void)
 {
 #ifdef DEBUG
@@ -55,29 +70,36 @@ int main(void)
      which is simulated by STM32 DMA and systick*/
   SSD1303_Controller_Init();
   
+  Device dev;
+  InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
+  
+  /* Draw a box */
+  for(u32 x=0;x<128;x++){
+    SetPoint(&dev,x,0);
+    SetPoint(&dev,x,63);
+  }
+  for(u32 y=0;y<63;y++){
+    SetPoint(&dev,0,y);
+    SetPoint(&dev,127,y);
+  }
+  
   while(1)
   {
-    static u32 k = 0;
-    k++;
-    if(k&1){
-      ShowData(0,1);
-      ShowData(1,0);
-      ShowData(2,1);
-      ShowData(3,0);
-      ShowData(4,1);
-      ShowData(5,0);
-      ShowData(6,1);
-      ShowData(7,0);
-    }else{
-      ShowData(0,0);
-      ShowData(1,1);
-      ShowData(2,0);
-      ShowData(3,1);
-      ShowData(4,0);
-      ShowData(5,1);
-      ShowData(6,0);
-      ShowData(7,1);
+    static u32 yPos = 1;
+    unsigned long xPos = 10;
+    yPos++;
+    if(yPos == 47){
+      yPos = 1;
     }
+    /* Cleare previous display data */
+    TextOut(&dev,xPos,yPos>1?yPos-1:46,"              ",0xff);
+    /* Output the English characters "Hello" */
+    xPos = TextOut(&dev,xPos,yPos,"Hello ",0xFF);
+    /* Output the Chinese characters "世界" */
+    xPos = SpecTextOut(&dev,xPos,yPos,world,2);
+    /* Output the '!' sign */
+    xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
+    
     for(u32 i=2000000;--i;);
   }
 }
@@ -247,7 +269,6 @@ void  SSD1303_Controller_Init(void)
   SysTick_ITConfig(ENABLE);
   SysTick_CounterCmd(SysTick_Counter_Enable);
 }
-
 
 #ifdef  DEBUG
 /*******************************************************************************

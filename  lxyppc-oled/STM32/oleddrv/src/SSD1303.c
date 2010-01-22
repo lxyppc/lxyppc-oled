@@ -11,6 +11,7 @@
 #include "stm32f10x_lib.h"
 #include "bsp.h"
 #include "SSD1303.h"
+#include "DrawText.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -18,13 +19,15 @@
 #define   SSD1303_COLUMN_NUMBER         128
 #define   SSD1303_COLUMN_MARGIN_START   2
 #define   SSD1303_COLUMN_MARGIN_END     2
+#define   SSD1303_X_PIXEL   128
+#define   SSD1303_Y_PIXEL   64
 
 /* Private macro -------------------------------------------------------------*/
 #define   SSD1303_Buffer    (_SSD1303_Buffer + SSD1303_COLUMN_MARGIN_START)
 
 /* Private variables ---------------------------------------------------------*/
 static  u8  _SSD1303_Buffer[SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER 
-+ SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END];
++ SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END] = {0};
 static  u8  pageIndex = 0;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -119,7 +122,9 @@ void SSD1303_Init(void)
   // VP
   WriteCommand(0xD9); /* Set VP */
   WriteCommand(0x22); /* P1=2 , P2=2 */
-  WriteCommand(0xc0);/* Set COM scan direction */
+  
+  // Set Common output scan direction
+  WriteCommand(0xc8);/* Set COM scan direction */
   
   // Turn on the display
   WriteCommand(0xaf);
@@ -168,23 +173,6 @@ void DMA1_Channel5_IRQHandler(void)
 }
 
 /*******************************************************************************
-* Function Name  : ShowData
-* Description    : Show the data.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void  ShowData(u8 col, u8 set)
-{
-  unsigned char j;
-  unsigned char dd = set ? 0xFF : 0x00;
-  unsigned char* p = col*SSD1303_COLUMN_NUMBER + SSD1303_Buffer;
-  for(j=0;j<SSD1303_COLUMN_NUMBER;j++){
-    p[j] = dd;
-  }
-}
-
-/*******************************************************************************
 * Function Name  : SysTickHandler
 * Description    : This function handles SysTick Handler.
 * Input          : None
@@ -196,3 +184,91 @@ void SysTickHandler(void)
   pageIndex = 0;
   OnPageTransferDone();
 }
+
+
+/*******************************************************************************
+  Display related functions
+ ******************************************************************************/
+/*******************************************************************************
+* Function Name  : SSD1303_DrawBlock
+* Description    : Draw a block with specify data to SSD1303
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_DrawBlock(
+  Pos_t x,
+  Pos_t y,
+  Pos_t cx,
+  Pos_t cy,
+  const unsigned char* data)
+{
+  if(x+cx > SSD1303_X_PIXEL)return 0;
+  if(y+cy > SSD1303_Y_PIXEL)return 0;
+  unsigned char* pStart = SSD1303_Buffer + (y/8)*SSD1303_COLUMN_NUMBER;
+  unsigned char offset = y%8;
+  unsigned char mask = (1<<offset)-1;
+  
+  if(!offset){
+    for(Pos_t i=0;i<cx;i++){
+      unsigned char tmp;
+      for(Pos_t j=0;j<cy/8;j++){
+        tmp = data[i+j*cx];
+        *(pStart + j*SSD1303_COLUMN_NUMBER + i + x) = tmp;
+      }
+    }
+  }else{
+    for(Pos_t i=0;i<cx;i++){
+      unsigned short tmp;
+      for(Pos_t j=0;j<cy/8;j++){
+        if(j == 0){
+          // First line
+          tmp = *(pStart + j*SSD1303_COLUMN_NUMBER + i + x) & mask;
+        }
+        tmp |= (((unsigned short)data[i+j*cx])<<offset);
+        *(pStart + j*SSD1303_COLUMN_NUMBER + i + x) = tmp;
+        tmp>>=8;
+        if(j == (cy/8)-1){
+          // Last line
+          *(pStart + (j+1)*SSD1303_COLUMN_NUMBER + i + x) &= ~mask;
+          *(pStart + (j+1)*SSD1303_COLUMN_NUMBER + i + x) |= tmp;
+        }
+      }
+    }
+  }
+  
+  return 0;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_DrawPoint
+* Description    : Draw a point with specify data to SSD1303
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_DrawPoint(
+  Pos_t x,
+  Pos_t y,
+  Color_t color)
+{
+  if(x >= SSD1303_X_PIXEL)return 0;
+  if(y >= SSD1303_Y_PIXEL)return 0;
+  unsigned char* pStart = SSD1303_Buffer + (y/8)*SSD1303_COLUMN_NUMBER + x;
+  unsigned char mask = 1<<(y%8);
+  if(color){
+    *pStart |= mask;
+  }else{
+    *pStart &= ~mask;
+  }
+  return 0;
+}
+
+const DeviceProp  SSD1303_Prop =
+{
+  .pfnDrawBlok = SSD1303_DrawBlock,
+  .pfnDrawPoint = SSD1303_DrawPoint,
+  .xPixel = 128,
+  .yPixel = 64,
+};
+
