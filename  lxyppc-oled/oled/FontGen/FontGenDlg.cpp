@@ -76,7 +76,7 @@ BOOL CFontGenDlg::OnInitDialog()
     m_chFormat.cbSize = sizeof(CHARFORMAT);
     m_chFormat.dwMask = 0xFFFFFFFF;//CFM_COLOR | CFM_FACE;
     m_chFormat.crTextColor = RGB(0,0,0);
-    _tcscpy_s(m_chFormat.szFaceName, _T("Fixedsys"));
+    _tcscpy(m_chFormat.szFaceName, _T("Fixedsys"));
     CFontDialog ft(m_chFormat);
     ft.GetCurrentFont(&m_logFont);
 	return TRUE;  // return TRUE  unless you set the focus to a control
