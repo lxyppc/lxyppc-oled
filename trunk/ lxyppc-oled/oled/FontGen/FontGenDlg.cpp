@@ -24,6 +24,7 @@ CFontGenDlg::CFontGenDlg(CWnd* pParent /*=NULL*/)
     , m_bWidth(TRUE)
     , m_bHeight(TRUE)
     , m_sentence(_T(""))
+    , m_bVertical(TRUE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -41,6 +42,7 @@ void CFontGenDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_Height, m_bHeight);
     DDX_Control(pDX, IDC_EDIT2, m_codeOutput);
     DDX_Text(pDX, IDC_EDIT7, m_sentence);
+    DDX_Check(pDX, IDC_VERTICAL, m_bVertical);
 }
 
 BEGIN_MESSAGE_MAP(CFontGenDlg, CDialog)
@@ -246,27 +248,54 @@ void    CFontGenDlg::GenerateFontCode(BOOL bSpecifySentence)
         line += _T(" {\r\n");
 
         pDC->TextOut(0,0,s);
-        for(int col = 0; col < size.cx; col++){
-            for(int row = 0; row < size.cy; row++){
-                if(pDC->GetPixel(col,row) == RGB(0,0,0)){
-                    data[row][col/8] |= (1<<(col%8));
+
+        if(m_bVertical){
+            for(int col = 0; col < size.cx; col++){
+                for(int row = 0; row < size.cy; row++){
+                    if(pDC->GetPixel(col,row) == RGB(0,0,0)){
+                        data[col][row/8] |= (1<<(row%8));
+                    }
+                }
+            }
+        }else{
+            for(int col = 0; col < size.cx; col++){
+                for(int row = 0; row < size.cy; row++){
+                    if(pDC->GetPixel(col,row) == RGB(0,0,0)){
+                        data[row][col/8] |= (1<<(col%8));
+                    }
                 }
             }
         }
         int cnt = 0;
         CString rowRes(SPACE);
-        for(int row = 0; row < size.cy; row++){
-            for(int col =0; col< (size.cx+7)/8; col++){
-                CString ts;
-                ts.Format(_T("0x%02X,"),data[row][col]);
-                rowRes += ts;
-                cnt++;
-                if((cnt&7) == 0){
-                    rowRes += _T("\r\n");
-                    rowRes += SPACE;
+        if(m_bVertical){
+            for(int row =0; row< (size.cy+7)/8; row++){
+                for(int col = 0; col < size.cx; col++){
+                    CString ts;
+                    ts.Format(_T("0x%02X,"),data[col][row]);
+                    rowRes += ts;
+                    cnt++;
+                    if((cnt&7) == 0){
+                        rowRes += _T("\r\n");
+                        rowRes += SPACE;
+                    }
+                }
+            }
+        }else{
+            for(int row = 0; row < size.cy; row++){
+                for(int col =0; col< (size.cx+7)/8; col++){
+                    CString ts;
+                    ts.Format(_T("0x%02X,"),data[row][col]);
+                    rowRes += ts;
+                    cnt++;
+                    if((cnt&7) == 0){
+                        rowRes += _T("\r\n");
+                        rowRes += SPACE;
+                    }
                 }
             }
         }
+
         if(cnt>dataMax){
             dataMax = cnt;
         }
@@ -275,14 +304,14 @@ void    CFontGenDlg::GenerateFontCode(BOOL bSpecifySentence)
         output+= line;
     }
     output+= _T("};");
-    CString head(_T("typedef struct _CharData\r\n")
+    CString head(_T("typedef struct _FontData\r\n")
                 _T("{\r\n"));
     head += m_bWidth ? _T("    unsigned char width;\r\n") : _T("");
     head += m_bHeight ? _T("    unsigned char height;\r\n") : _T("");
     CString arrSize;
-    arrSize.Format(_T("    unsigned char data[%d];\r\n}CharData;\r\n"),dataMax);
+    arrSize.Format(_T("    unsigned char data[%d];\r\n}FontData;\r\n"),dataMax);
     head += arrSize;
-    head += _T("static const CharData fontBuffer[] = {\r\n");
+    head += _T("static const FontData fontBuffer[] = {\r\n");
     head += output;
     m_codeOutput.SetWindowText(head);
 
