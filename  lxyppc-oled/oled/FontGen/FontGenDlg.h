@@ -69,4 +69,6 @@ public:
     void    GenerateFontCode(BOOL bSpecifySentence);
 public:
     CString m_sentence;
+public:
+    BOOL m_bVertical;
 };
