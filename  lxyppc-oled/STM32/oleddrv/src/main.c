@@ -142,42 +142,37 @@ int main(void)
     DelayMs(2000);
     SetColor(BLACK);
     ClearDevice();
-
-  }
-  
-  
-  
-  
-  while(1);
-  
-  /* Draw a box */
-  for(u32 x=0;x<128;x++){
-    SetPoint(&dev,x,0);
-    SetPoint(&dev,x,63);
-  }
-  for(u32 y=0;y<63;y++){
-    SetPoint(&dev,0,y);
-    SetPoint(&dev,127,y);
-  }
-  
-  while(1)
-  {
-    static u32 yPos = 1;
-    unsigned long xPos = 10;
-    yPos++;
-    if(yPos == 47){
-      yPos = 1;
-    }
-    /* Cleare previous display data */
-    TextOut(&dev,xPos,yPos>1?yPos-1:46,"              ",0xff);
-    /* Output the English characters "Hello" */
-    xPos = TextOut(&dev,xPos,yPos,"Hello ",0xFF);
-    /* Output the Chinese characters "世界" */
-    xPos = SpecTextOut(&dev,xPos,yPos,world,2);
-    /* Output the '!' sign */
-    xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
     
-    for(u32 i=2000000;--i;);
+    
+      /* Draw a box */
+    for(u32 x=0;x<128;x++){
+      SetPoint(&dev,x,0);
+      SetPoint(&dev,x,63);
+    }
+    for(u32 y=0;y<63;y++){
+      SetPoint(&dev,0,y);
+      SetPoint(&dev,127,y);
+    }
+    static u32 yPos = 1;
+    yPos = 0;
+    while(1){
+      unsigned long xPos = 10;
+      yPos++;
+      if(yPos == 47){
+        break;
+      }
+      /* Cleare previous display data */
+      TextOut(&dev,xPos,yPos>1?yPos-1:46,"              ",0xff);
+      /* Output the English characters "Hello" */
+      xPos = TextOut(&dev,xPos,yPos,"Hello ",0xFF);
+      /* Output the Chinese characters "世界" */
+      xPos = SpecTextOut(&dev,xPos,yPos,world,2);
+      /* Output the '!' sign */
+      xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
+      
+      for(u32 i=2000000;--i;);
+    } 
+
   }
 }
 
