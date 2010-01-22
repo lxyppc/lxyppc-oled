@@ -264,6 +264,37 @@ unsigned long SSD1303_DrawPoint(
   return 0;
 }
 
+/*******************************************************************************
+* Function Name  : SSD1303_ReadPoint
+* Description    : Read a point from SSD1303
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_ReadPoint(
+  Pos_t x,
+  Pos_t y)
+{
+  unsigned char* pStart = SSD1303_Buffer + (y/8)*SSD1303_COLUMN_NUMBER + x;
+  unsigned char mask = 1<<(y%8);
+  return *pStart&mask ? 1 : 0;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_ClearScreen
+* Description    : Clear the screen contents
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void  SSD1303_FillScreen(Color_t color)
+{
+  unsigned char mask = color ? 0xFF : 0;
+  for(unsigned long i=0;i<SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER;i++){
+    SSD1303_Buffer[i] = mask;
+  }
+}
+
 const DeviceProp  SSD1303_Prop =
 {
   .pfnDrawBlok = SSD1303_DrawBlock,

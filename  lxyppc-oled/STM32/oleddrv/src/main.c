@@ -10,10 +10,13 @@
 #include "stm32f10x_lib.h"
 #include "bsp.h"
 #include "SSD1303.h"
+#include "Graphics\Graphics.h"  // Graphic primitives layer
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+#define WAIT_UNTIL_FINISH(x) (x)
+
 /* Private variables ---------------------------------------------------------*/
 static const FontData world[2] = {
     /* Char  Code  width, height,  {data}  */
@@ -48,6 +51,8 @@ void SSD1303_Controller_Init(void);
 *******************************************************************************/
 int main(void)
 {
+  SHORT width, height;
+  SHORT counter;
 #ifdef DEBUG
   debug();
 #endif
@@ -72,6 +77,78 @@ int main(void)
   
   Device dev;
   InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
+  
+  InitGraph();
+  
+  while(1){
+    SetColor(WHITE);
+    for(counter=0; counter<GetMaxX(); counter+=20){
+      DelayMs(500);
+      WAIT_UNTIL_FINISH(Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1));
+    }
+    
+    DelayMs(2000);
+    
+    for(counter=10; counter<GetMaxY()>>1; counter+=10){
+      DelayMs(500);
+      WAIT_UNTIL_FINISH(Circle(GetMaxX()>>1,GetMaxY()>>1,counter));
+    }
+    
+    DelayMs(2000);
+    WAIT_UNTIL_FINISH(FillCircle(GetMaxX()>>1,GetMaxY()>>1,10));
+    
+    DelayMs(2000);
+    WAIT_UNTIL_FINISH(FillCircle(GetMaxX()>>1,GetMaxY()>>1,20));
+    
+    DelayMs(2000);
+    WAIT_UNTIL_FINISH(FillCircle(GetMaxX()>>1,GetMaxY()>>1,30));
+    
+    DelayMs(2000);
+    SetColor(BLACK);
+    ClearDevice();
+
+    DelayMs(2000);
+    SetColor(WHITE);
+    WAIT_UNTIL_FINISH(Bevel((GetMaxX()>>1)-30,(GetMaxY()>>1)-30,(GetMaxX()>>1)+30,(GetMaxY()>>1)+30,15));
+    
+    WAIT_UNTIL_FINISH(Bevel((GetMaxX()>>1)-20,(GetMaxY()>>1)-20,(GetMaxX()>>1)+20,(GetMaxY()>>1)+20,15));
+    
+    WAIT_UNTIL_FINISH(Bevel((GetMaxX()>>1)-10,(GetMaxY()>>1)-10,(GetMaxX()>>1)+10,(GetMaxY()>>1)+10,15));
+    
+    DelayMs(2000);
+    SetColor(BLACK);
+    ClearDevice();
+    SetColor(WHITE);
+    WAIT_UNTIL_FINISH(Arc((GetMaxX()>>1)-30,(GetMaxY()>>1)-30,(GetMaxX()>>1)+30,(GetMaxY()>>1)+30,10,15,0xFF));
+    
+    WAIT_UNTIL_FINISH(Arc((GetMaxX()>>1)-20,(GetMaxY()>>1)-20,(GetMaxX()>>1)+20,(GetMaxY()>>1)+20,10,15,0xFF));
+    
+    WAIT_UNTIL_FINISH(Arc((GetMaxX()>>1)-10,(GetMaxY()>>1)-10,(GetMaxX()>>1)+10,(GetMaxY()>>1)+10,10,15,0xFF));
+    
+    DelayMs(2000);
+    SetColor(BLACK);
+    ClearDevice();
+    
+    SetColor(WHITE);
+    
+    for(counter=0; counter<GetMaxY()>>1; counter+=4){
+      DelayMs(500);
+      WAIT_UNTIL_FINISH(Rectangle(GetMaxX()/2-counter,
+                                  GetMaxY()/2-counter,
+                                  GetMaxX()/2+counter,
+                                  GetMaxY()/2+counter));
+    }
+    
+    DelayMs(2000);
+    SetColor(BLACK);
+    ClearDevice();
+
+  }
+  
+  
+  
+  
+  while(1);
   
   /* Draw a box */
   for(u32 x=0;x<128;x++){
