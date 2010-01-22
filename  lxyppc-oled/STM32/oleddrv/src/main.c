@@ -39,6 +39,7 @@ void RCC_Configuration(void);
 void NVIC_Configuration(void);
 void SSD1303_IO_Configuration(void);
 void SSD1303_Controller_Init(void);
+void CCW_Rotate(unsigned char io[8]);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -80,6 +81,11 @@ int main(void)
   
   InitGraph();
   
+  u8  buf[8];
+  for(u32 i=0;i<8;i++){
+    buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
+  }
+  
   while(1){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
@@ -107,7 +113,6 @@ int main(void)
     SetColor(BLACK);
     ClearDevice();
 
-    DelayMs(2000);
     SetColor(WHITE);
     WAIT_UNTIL_FINISH(Bevel((GetMaxX()>>1)-30,(GetMaxY()>>1)-30,(GetMaxX()>>1)+30,(GetMaxY()>>1)+30,15));
     
@@ -168,12 +173,49 @@ int main(void)
       /* Output the Chinese characters " ¿ΩÁ" */
       xPos = SpecTextOut(&dev,xPos,yPos,world,2);
       /* Output the '!' sign */
-      xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
+      //xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
+      
+      TextOut(&dev,xPos + 8,8, (yPos & 2) ? (yPos&1 ? "\\" : "-" ) : (yPos&1 ? "/" : "|" ),0xFF);
+      SSD1303_DrawBlock(xPos,yPos,8,8,buf);
+      CCW_Rotate(buf);
       
       for(u32 i=2000000;--i;);
-    } 
+    }
+    SetColor(BLACK);
+    ClearDevice();
 
   }
+}
+
+/*******************************************************************************
+* Function Name  : CCW_Rotate
+* Description    : Counter Clock Wise rotate the 8*8 bit map.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CCW_Rotate(unsigned char *io)
+{
+  unsigned long x,y,t;
+  x = (io[0] << 24) | (io[1] << 16) | (io[2] << 8) | io[3];
+  y = (io[4] << 24) | (io[5] << 16) | (io[6] << 8) | io[7];
+  
+  t = (x & 0xf0f0f0f0) | ((y >> 4) & 0x0f0f0f0f);
+  y = ((x << 4) & 0xf0f0f0f0) | (y & 0x0f0f0f0f);
+  x = t; 
+
+  t = (x ^ (x >> 14)) & 0x0000cccc;
+  x = x ^ t ^ (t << 14);
+  t = (y ^ (y >> 14)) & 0x0000cccc;
+  y = y ^ t ^ (t << 14);
+
+  t = (x ^ (x >> 7)) & 0x00aa00aa;
+  x = x ^ t ^ (t << 7);
+  t = (y ^ (y >> 7)) & 0x00aa00aa;
+  y = y ^ t ^ (t << 7);
+
+  io[7] = x >> 24; io[6] = x >> 16; io[5] = x >> 8; io[4] = x;
+  io[3] = y >> 24; io[2] = y >> 16; io[1] = y >> 8; io[0] = y; 
 }
 
 /*******************************************************************************
