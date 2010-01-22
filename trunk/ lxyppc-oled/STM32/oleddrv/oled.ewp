@@ -138,6 +138,8 @@
         <option>
           <name>CCDefines</name>
           <state>VECT_TAB_RAM</state>
+          <state>__PIC32MX__</state>
+          <state>_STM32_</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -336,6 +338,7 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\FWLib\inc</state>
           <state>$PROJ_DIR$\inc</state>
+          <state>$PROJ_DIR$\..\GraphicLib\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -963,6 +966,8 @@
         <option>
           <name>CCDefines</name>
           <state>VECT_TAB_FLASH</state>
+          <state>__PIC32MX__</state>
+          <state>_STM32_</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1161,6 +1166,7 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\FWLib\inc</state>
           <state>$PROJ_DIR$\inc</state>
+          <state>$PROJ_DIR$\..\GraphicLib\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2562,12 +2568,96 @@
     </file>
   </group>
   <group>
+    <name>GraphicLib</name>
+    <group>
+      <name>inc</name>
+    </group>
+    <group>
+      <name>src</name>
+      <group>
+        <name>drivers</name>
+      </group>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Button.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Chart.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\CheckBox.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\DigitalMeter.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\DisplayDriver.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\EditBox.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\GOL.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\GOLFontDefault.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Grid.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\GroupBox.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\ListBox.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Meter.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Picture.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Primitive.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\ProgressBar.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\RadioButton.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\RoundDial.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Slider.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\StaticText.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Template.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\TextEntry.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\GraphicLib\src\Window.c</name>
+      </file>
+    </group>
+  </group>
+  <group>
     <name>Inc</name>
     <file>
       <name>$PROJ_DIR$\inc\bsp.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\inc\font.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\inc\GraphicsConfig.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\inc\HardwareProfile.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\inc\SSD1303.h</name>
