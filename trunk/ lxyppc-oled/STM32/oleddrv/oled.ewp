@@ -2567,6 +2567,9 @@
       <name>$PROJ_DIR$\inc\bsp.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\inc\font.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\inc\SSD1303.h</name>
     </file>
     <file>
@@ -2578,6 +2581,12 @@
   </group>
   <group>
     <name>User</name>
+    <file>
+      <name>$PROJ_DIR$\src\DrawText.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\font.c</name>
+    </file>
     <file>
       <name>$PROJ_DIR$\src\main.c</name>
     </file>
