@@ -123,7 +123,7 @@ typedef struct {
   DWORD       address;      // bitmap or font image address
 } EXTDATA;
 
-#ifdef __PIC32MX__
+#if defined (__PIC32MX__) || defined (_STM32_)
 #define FLASH_BYTE  const BYTE 
 #define FLASH_WORD  const WORD
 #else

@@ -138,7 +138,6 @@
         <option>
           <name>CCDefines</name>
           <state>VECT_TAB_RAM</state>
-          <state>__PIC32MX__</state>
           <state>_STM32_</state>
         </option>
         <option>
@@ -966,7 +965,6 @@
         <option>
           <name>CCDefines</name>
           <state>VECT_TAB_FLASH</state>
-          <state>__PIC32MX__</state>
           <state>_STM32_</state>
         </option>
         <option>
@@ -1794,6 +1792,7 @@
         <option>
           <name>CCDefines</name>
           <state>VECT_TAB_FLASH</state>
+          <state>_STM32_</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1992,6 +1991,7 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\FWLib\inc</state>
           <state>$PROJ_DIR$\inc</state>
+          <state>$PROJ_DIR$\..\GraphicLib\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>

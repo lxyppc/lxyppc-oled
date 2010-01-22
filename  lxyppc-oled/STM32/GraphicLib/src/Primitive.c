@@ -11,7 +11,7 @@
  *
  * Software License Agreement
  *
- * Copyright © 2008 Microchip Technology Inc.  All rights reserved.
+ * Copyright ?2008 Microchip Technology Inc.  All rights reserved.
  * Microchip licenses to you the right to use, modify, copy and distribute
  * Software only when embedded on a Microchip microcontroller or digital
  * signal controller, which is integrated into your product or third party
@@ -21,7 +21,7 @@
  * You should refer to the license agreement accompanying this Software
  * for additional information regarding your rights and obligations.
  *
- * SOFTWARE AND DOCUMENTATION ARE PROVIDED “AS IS” WITHOUT WARRANTY OF ANY
+ * SOFTWARE AND DOCUMENTATION ARE PROVIDED “AS IS?WITHOUT WARRANTY OF ANY
  * KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION, ANY WARRANTY
  * OF MERCHANTABILITY, TITLE, NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR
  * PURPOSE. IN NO EVENT SHALL MICROCHIP OR ITS LICENSORS BE LIABLE OR
@@ -1028,7 +1028,7 @@ WORD DrawPoly(SHORT numPoints, SHORT* polyPoints){
         while(Line(sx,sy,ex,ey) == 0);
         sx = ex; sy = ey;
     }
-
+    return 1;
 #else
     typedef enum {
     POLY_BEGIN,
@@ -1068,8 +1068,6 @@ WORD DrawPoly(SHORT numPoints, SHORT* polyPoints){
     }
 
 #endif
-
-    return 1;
 }
 
 /*********************************************************************
@@ -1306,9 +1304,9 @@ WORD OutChar(XCHAR ch){
     #endif
 
     if((unsigned XCHAR)ch<(unsigned XCHAR)_fontFirstChar)
-        return -1;
+        return (WORD)-1;
     if((unsigned XCHAR)ch>(unsigned XCHAR)_fontLastChar)
-        return -1;
+        return (WORD)-1;
 
     switch(*((SHORT*)_font)){
 #ifdef USE_FONT_FLASH
