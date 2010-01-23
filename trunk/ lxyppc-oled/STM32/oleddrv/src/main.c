@@ -39,7 +39,7 @@ void RCC_Configuration(void);
 void NVIC_Configuration(void);
 void SSD1303_IO_Configuration(void);
 void SSD1303_Controller_Init(void);
-void CCW_Rotate(unsigned char io[8]);
+void CCW_Rotate(unsigned char *des, const unsigned char *src);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -177,7 +177,7 @@ int main(void)
       
       TextOut(&dev,xPos + 8,8, (yPos & 2) ? (yPos&1 ? "\\" : "-" ) : (yPos&1 ? "/" : "|" ),0xFF);
       SSD1303_DrawBlock(xPos,yPos,8,8,buf);
-      CCW_Rotate(buf);
+      CCW_Rotate(buf,buf);
       
       for(u32 i=2000000;--i;);
     }
@@ -194,11 +194,11 @@ int main(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CCW_Rotate(unsigned char *io)
+void CCW_Rotate(unsigned char *des, const unsigned char *src)
 {
   unsigned long x,y,t;
-  x = (io[0] << 24) | (io[1] << 16) | (io[2] << 8) | io[3];
-  y = (io[4] << 24) | (io[5] << 16) | (io[6] << 8) | io[7];
+  x = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | src[3];
+  y = (src[4] << 24) | (src[5] << 16) | (src[6] << 8) | src[7];
   
   t = (x & 0xf0f0f0f0) | ((y >> 4) & 0x0f0f0f0f);
   y = ((x << 4) & 0xf0f0f0f0) | (y & 0x0f0f0f0f);
@@ -214,8 +214,8 @@ void CCW_Rotate(unsigned char *io)
   t = (y ^ (y >> 7)) & 0x00aa00aa;
   y = y ^ t ^ (t << 7);
 
-  io[7] = x >> 24; io[6] = x >> 16; io[5] = x >> 8; io[4] = x;
-  io[3] = y >> 24; io[2] = y >> 16; io[1] = y >> 8; io[0] = y; 
+  des[7] = x >> 24; des[6] = x >> 16; des[5] = x >> 8; des[4] = x;
+  des[3] = y >> 24; des[2] = y >> 16; des[1] = y >> 8; des[0] = y; 
 }
 
 /*******************************************************************************
