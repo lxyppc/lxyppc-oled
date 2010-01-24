@@ -11,13 +11,18 @@
 #include "bsp.h"
 #include "SSD1303.h"
 #include "Graphics\Graphics.h"  // Graphic primitives layer
+#include "ClockUI.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+//#define   RTCClockSource_LSI
+#define   RTCClockSource_LSE
+
 /* Private macro -------------------------------------------------------------*/
 #define WAIT_UNTIL_FINISH(x) (x)
 
 /* Private variables ---------------------------------------------------------*/
+static vu32 TimeDisplay = 0;
 static const FontData world[2] = {
     /* Char  Code  width, height,  {data}  */
     {/* ÊÀ  0x0000*/      16,    16, {
@@ -40,6 +45,7 @@ void NVIC_Configuration(void);
 void SSD1303_IO_Configuration(void);
 void SSD1303_Controller_Init(void);
 void CCW_Rotate(unsigned char *des, const unsigned char *src);
+void RTC_Configuration(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -76,6 +82,9 @@ int main(void)
      which is simulated by STM32 DMA and systick*/
   SSD1303_Controller_Init();
   
+  /* Initialize the RTC peripheral */
+  RTC_Configuration();
+  
   Device dev;
   InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
   
@@ -86,7 +95,7 @@ int main(void)
     buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
   }
   
-  while(1){
+  while(0){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
       DelayMs(500);
@@ -183,7 +192,33 @@ int main(void)
     }
     SetColor(BLACK);
     ClearDevice();
-
+    break;
+  }
+  Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
+  //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
+  while(1){
+    if(TimeDisplay){
+      Pos_t x = 60;
+      Pos_t y = 3;
+      TimeDisplay = 0;
+      u32 TimeVar = RTC_GetCounter();
+      u32 THH = 0, TMM = 0, TSS = 0;
+      /* Compute  hours */
+      THH = TimeVar / 3600;
+      /* Compute minutes */
+      TMM = (TimeVar % 3600) / 60;
+      /* Compute seconds */
+      TSS = (TimeVar % 3600) % 60;
+      char tBuf[10] = {
+        THH/10 + '0',THH%10 + '0',
+        ':',
+        TMM/10 + '0',TMM%10 + '0',
+        ':',
+        TSS/10 + '0',TSS%10 + '0',
+      };
+      x = TextOut(&dev,x,y,tBuf,0xff);
+      Clock_UpdateTime(THH,TMM,TSS);
+    }
   }
 }
 
@@ -382,6 +417,111 @@ void  SSD1303_Controller_Init(void)
   SysTick_SetReload(72000000/SSD1303_FPS);
   SysTick_ITConfig(ENABLE);
   SysTick_CounterCmd(SysTick_Counter_Enable);
+}
+
+/*******************************************************************************
+* Function Name  : RTC_Configuration
+* Description    : Initialize the RTC peripheral.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void RTC_Configuration(void)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* Enable PWR and BKP clocks */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+  
+  /* Allow access to BKP Domain */
+  PWR_BackupAccessCmd(ENABLE);
+  
+  /* Reset Backup Domain */
+  BKP_DeInit();
+  
+#ifdef RTCClockSource_LSI
+  /* Enable LSI */ 
+  RCC_LSICmd(ENABLE);
+  /* Wait till LSI is ready */
+  while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
+  {
+  }
+
+  /* Select LSI as RTC Clock Source */
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);  
+#elif defined	RTCClockSource_LSE  
+  /* Enable LSE */
+  RCC_LSEConfig(RCC_LSE_ON);
+  /* Wait till LSE is ready */
+  while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+  {
+  }
+
+  /* Select LSE as RTC Clock Source */
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);  
+#endif
+  
+  NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQChannel;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  /* Enable RTC Clock */
+  RCC_RTCCLKCmd(ENABLE);
+  /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
+
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+  
+  /* Enable the RTC Second */  
+  RTC_ITConfig(RTC_IT_SEC, ENABLE);
+
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+  
+  /* Set RTC prescaler: set RTC period to 1sec */
+#ifdef RTCClockSource_LSI
+  RTC_SetPrescaler(31999); /* RTC period = RTCCLK/RTC_PR = (32.000 KHz)/(31999+1) */
+#elif defined	RTCClockSource_LSE
+  RTC_SetPrescaler(32767); /* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) */
+#endif
+  
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+}
+
+/*******************************************************************************
+* Function Name  : RTC_IRQHandler
+* Description    : This function handles RTC global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void RTC_IRQHandler(void)
+{
+  if (RTC_GetITStatus(RTC_IT_SEC) != RESET)
+  {
+    /* Clear the RTC Second interrupt */
+    RTC_ClearITPendingBit(RTC_IT_SEC);
+
+    /* Toggle GPIO_LED pin 6 each 1s */
+    //GPIO_WriteBit(GPIOF, GPIO_Pin_6, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOF, GPIO_Pin_6)));
+
+    /* Enable time update */
+    TimeDisplay = 1;
+
+    /* Wait until last write operation on RTC registers has finished */
+    RTC_WaitForLastTask();
+    /* Reset RTC Counter when Time is 23:59:59 */
+    if (RTC_GetCounter() == 0x00015180)
+    {
+      RTC_SetCounter(0x0);
+      /* Wait until last write operation on RTC registers has finished */
+      RTC_WaitForLastTask();
+    }
+  }
 }
 
 #ifdef  DEBUG
