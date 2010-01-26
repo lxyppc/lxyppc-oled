@@ -95,11 +95,35 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" "Library"))
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB")
+      (Path "Design Resources" "Library")
+      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB"
+         "PAGE1"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -4 -30 0 493 0 566"))
-      (Tab 0)))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 2 3 -1 -1 -4 -30 16 1094 62 662")
+        (Scroll "0 120")
+        (Zoom "100")
+        (Occurrence "/"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Main")
+      (Page "PAGE1"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -1 -1 -356 722 -5 595")
+        (Scroll "0 10")
+        (Zoom "100"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "USB")
+      (Page "PAGE1")))
   (MPSSessionName "Administrator"))
