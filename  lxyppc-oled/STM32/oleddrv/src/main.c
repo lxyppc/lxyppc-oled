@@ -12,6 +12,7 @@
 #include "SSD1303.h"
 #include "Graphics\Graphics.h"  // Graphic primitives layer
 #include "ClockUI.h"
+#include "ClockSet.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -46,6 +47,7 @@ void SSD1303_IO_Configuration(void);
 void SSD1303_Controller_Init(void);
 void CCW_Rotate(unsigned char *des, const unsigned char *src);
 void RTC_Configuration(void);
+void Initial_Tim2(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -89,6 +91,8 @@ int main(void)
   InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
   
   InitGraph();
+  
+  Initial_Tim2();
   
   u8  buf[8];
   for(u32 i=0;i<8;i++){
@@ -197,8 +201,11 @@ int main(void)
   Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
   while(1){
+    
     if(TimeDisplay){
-      Pos_t x = 60;
+      CheckConnection();
+      vu16 ccr1 = TIM2->CCR1;
+      Pos_t x = 6;
       Pos_t y = 3;
       TimeDisplay = 0;
       u32 TimeVar = RTC_GetCounter();
@@ -251,62 +258,6 @@ void CCW_Rotate(unsigned char *des, const unsigned char *src)
 
   des[7] = x >> 24; des[6] = x >> 16; des[5] = x >> 8; des[4] = x;
   des[3] = y >> 24; des[2] = y >> 16; des[1] = y >> 8; des[0] = y; 
-}
-
-/*******************************************************************************
-* Function Name  : RCC_Configuration
-* Description    : Configures the different system clocks.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void RCC_Configuration(void)
-{
-  /* RCC system reset(for debug purpose) */
-  RCC_DeInit();
-
-  /* Enable HSE */
-  RCC_HSEConfig(RCC_HSE_ON);
-
-  /* Wait till HSE is ready */
-  ErrorStatus HSEStartUpStatus = RCC_WaitForHSEStartUp();
-
-  if(HSEStartUpStatus == SUCCESS)
-  {
-    /* Enable Prefetch Buffer */
-    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-
-    /* Flash 2 wait state */
-    FLASH_SetLatency(FLASH_Latency_2);
- 
-    /* HCLK = SYSCLK */
-    RCC_HCLKConfig(RCC_SYSCLK_Div1); 
-  
-    /* PCLK2 = HCLK */
-    RCC_PCLK2Config(RCC_HCLK_Div1); 
-
-    /* PCLK1 = HCLK/2 */
-    RCC_PCLK1Config(RCC_HCLK_Div2);
-
-    /* PLLCLK = 8MHz * 9 = 72 MHz */
-    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
-
-    /* Enable PLL */ 
-    RCC_PLLCmd(ENABLE);
-
-    /* Wait till PLL is ready */
-    while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-    {
-    }
-
-    /* Select PLL as system clock source */
-    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-
-    /* Wait till PLL is used as system clock source */
-    while(RCC_GetSYSCLKSource() != 0x08)
-    {
-    }
-  }
 }
 
 /*******************************************************************************

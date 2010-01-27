@@ -2672,6 +2672,9 @@
   <group>
     <name>User</name>
     <file>
+      <name>$PROJ_DIR$\src\ClockSet.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\src\ColckUI.c</name>
     </file>
     <file>
