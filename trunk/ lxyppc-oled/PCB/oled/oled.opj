@@ -104,13 +104,8 @@
     (FileView
       (Path "Design Resources")
       (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Charge")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB")
       (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library" "F:\Codes\oled\PCB\oled\library1.olb")
-      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB"
-         "PAGE1"))
+      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -120,19 +115,11 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -4 -30 138 1220 80 684")
+        (Placement "44 0 1 0 830 -4 -30 119 1197 69 669")
         (Scroll "0 0")
-        (Zoom "113"))
+        (Zoom "79")
+        (Occurrence "/"))
       (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "Charge")
-      (Page "PAGE1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 -109 969 32 632")
-        (Scroll "0 0")
-        (Zoom "100"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "USB")
+      (Schematic "Main")
       (Page "PAGE1")))
   (MPSSessionName "Administrator"))
