@@ -13,6 +13,10 @@
   (Folder "Outputs")
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (CON6
+      (FullPartName "CON6.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
     (CON8
       (FullPartName "CON8.Normal")
       (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
@@ -50,10 +54,6 @@
     (MAX1555
       (FullPartName "MAX1555.Normal")
       (LibraryName "F:\CODES\OLED\PCB\OLED\LIBRARY1.OLB")
-      (DeviceIndex "0"))
-    (CON6
-      (FullPartName "CON6.Normal")
-      (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0"))
     (PAM3101DBA330
       (FullPartName "PAM3101DBA330.Normal")
@@ -107,14 +107,7 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Charge")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "IAP")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB")
-      (Path "Design Resources" "Library")
-      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main"
-         "PAGE1"))
+      (Path "Design Resources" "Library"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -124,29 +117,10 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 0 830 -4 -30 144 1222 216 816")
-        (Scroll "1364 600")
-        (Zoom "158")
-        (Occurrence "/"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "Main")
-      (Page "PAGE1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 239 1317 91 691")
-        (Scroll "0 40")
+        (Placement "44 0 1 -1 -1 -1 -1 60 1138 65 665")
+        (Scroll "0 82")
         (Zoom "100"))
       (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
       (Schematic "IAP")
-      (Page "PAGE1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 128 1206 182 782")
-        (Scroll "0 40")
-        (Zoom "100"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "USB")
       (Page "PAGE1")))
   (MPSSessionName "Administrator"))
