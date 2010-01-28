@@ -9,10 +9,42 @@
     (File ".\oled.dsn"
       (Type "Schematic Design"))
     (BuildFileAddedOrDeleted "x")
-    (CompileFileAddedOrDeleted "x"))
+    (CompileFileAddedOrDeleted "x")
+    ("Create Allegro Netlist" "TRUE")
+    ("Allegro Netlist Directory" "allegro")
+    ("View Allegro Netlist Files" "FALSE")
+    ("Update Allegro Board" "FALSE")
+    ("Allegro Netlist Output Board File" "allegro\oled.brd")
+    ("Allegro Netlist Remove Etch" "FALSE")
+    ("Allegro Netlist Place Changed Component" "ALWAYS_REPLACE")
+    ("Allegro Netlist Open Board in Allegro" "ALLEGRO")
+    ("Allegro Setup Configuration File"
+       "E:\Cadence\SPB_15.7\tools\capture\allegro.cfg")
+    ("Allegro Setup Backup Versions" "3")
+    ("Allegro Netlist Combine Property String" "PCB Footprint")
+    ("Allegro Netlist Ignore Fixed Property" "FALSE")
+    ("Allegro Netlist User Defined Property" "FALSE")
+    (Netlist_TAB "0")
+    (RootChangedForceReNetlist "x"))
   (Folder "Outputs")
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (CRYSTAL_4
+      (FullPartName "CRYSTAL_4.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
+    ("CAP NP"
+      (FullPartName "CAP NP.Normal")
+      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    ("CAP POL"
+      (FullPartName "CAP POL.Normal")
+      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (LT1117-3v3
+      (FullPartName "LT1117-3v3.Normal")
+      (LibraryName "F:\CODES\OLED\PCB\OLED\LIBRARY1.OLB")
+      (DeviceIndex "0"))
     (CON6
       (FullPartName "CON6.Normal")
       (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
@@ -41,10 +73,6 @@
       (FullPartName "CON2.Normal")
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
       (DeviceIndex "0"))
-    ("CAP NP"
-      (FullPartName "CAP NP.Normal")
-      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
     (VCC_BAR
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0"))
@@ -63,10 +91,6 @@
       (FullPartName "CRYSTAL_2.Normal")
       (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0"))
-    (CRYSTAL_4
-      (FullPartName "CRYSTAL_4.Normal")
-      (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
-      (DeviceIndex "0"))
     (CON5
       (FullPartName "CON5.Normal")
       (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
@@ -74,10 +98,6 @@
     (CP2102
       (FullPartName "CP2102.Normal")
       (LibraryName "F:\Codes\oled\PCB\TEST\LIBRARY1.OLB")
-      (DeviceIndex "0"))
-    ("CAP POL"
-      (FullPartName "CAP POL.Normal")
-      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
       (DeviceIndex "0"))
     (CON1
       (FullPartName "CON1.Normal")
@@ -107,7 +127,14 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" "Library"))
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Charge")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB")
+      (Path "Design Resources" "Library")
+      (Path "Design Resources" "Library" "F:\Codes\oled\PCB\oled\library1.olb")
+      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB"
+         "PAGE1"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -117,10 +144,29 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 60 1138 65 665")
-        (Scroll "0 82")
-        (Zoom "100"))
+        (Placement "44 0 1 -1 -1 -1 -1 207 1285 84 684")
+        (Scroll "0 0")
+        (Zoom "100")
+        (Occurrence "/"))
       (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
       (Schematic "IAP")
+      (Page "PAGE1"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -1 -1 73 1151 50 650")
+        (Scroll "0 0")
+        (Zoom "100"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Charge")
+      (Page "PAGE1"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -1 -1 50 1128 -17 583")
+        (Scroll "0 37")
+        (Zoom "100"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "USB")
       (Page "PAGE1")))
   (MPSSessionName "Administrator"))
