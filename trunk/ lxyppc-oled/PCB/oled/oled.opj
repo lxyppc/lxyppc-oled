@@ -29,13 +29,46 @@
   (Folder "Outputs")
   (Folder "Referenced Projects")
   (PartMRUSelector
-    (CRYSTAL_4
-      (FullPartName "CRYSTAL_4.Normal")
-      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+    (RESISTOR
+      (FullPartName "RESISTOR.Normal")
+      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (GND_POWER
+      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
+      (DeviceIndex "0"))
+    (OFFPAGELEFT-R
+      (LibraryName "D:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
+      (DeviceIndex "0"))
+    (OFFPAGELEFT-L
+      (LibraryName "D:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0"))
     ("CAP NP"
       (FullPartName "CAP NP.Normal")
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (LED
+      (FullPartName "LED.Normal")
+      (LibraryName "E:\MY PROGRAMMES\OLED\PCB\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
+    (CON3
+      (FullPartName "CON3.Normal")
+      (LibraryName "D:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
+      (DeviceIndex "0"))
+    (BQ24073
+      (FullPartName "BQ24073.Normal")
+      (LibraryName "E:\MY PROGRAMMES\OLED\PCB\OLED\LIBRARY1.OLB")
+      (DeviceIndex "0"))
+    (CON6
+      (FullPartName "CON6.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
+    (CON4
+      (FullPartName "CON4.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
+    (CRYSTAL_4
+      (FullPartName "CRYSTAL_4.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0"))
     ("CAP POL"
       (FullPartName "CAP POL.Normal")
@@ -45,10 +78,6 @@
       (FullPartName "LT1117-3v3.Normal")
       (LibraryName "F:\CODES\OLED\PCB\OLED\LIBRARY1.OLB")
       (DeviceIndex "0"))
-    (CON6
-      (FullPartName "CON6.Normal")
-      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
-      (DeviceIndex "0"))
     (CON8
       (FullPartName "CON8.Normal")
       (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
@@ -57,26 +86,11 @@
       (FullPartName "DIODE.Normal")
       (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0"))
-    (RESISTOR
-      (FullPartName "RESISTOR.Normal")
-      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (LED
-      (FullPartName "LED.Normal")
-      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
-      (DeviceIndex "0"))
-    (CON4
-      (FullPartName "CON4.Normal")
-      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
-      (DeviceIndex "0"))
     (CON2
       (FullPartName "CON2.Normal")
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
       (DeviceIndex "0"))
     (VCC_BAR
-      (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
-      (DeviceIndex "0"))
-    (GND_POWER
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0"))
     (MAX1555
@@ -110,31 +124,17 @@
     (INDUCTOR
       (FullPartName "INDUCTOR.Normal")
       (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
-      (DeviceIndex "0"))
-    (SSD1306
-      (FullPartName "SSD1306.Normal")
-      (LibraryName "F:\Codes\oled\PCB\TEST\LIBRARY1.OLB")
-      (DeviceIndex "0"))
-    (MAX1724
-      (FullPartName "MAX1724.Normal")
-      (LibraryName "F:\Codes\oled\PCB\TEST\LIBRARY1.OLB")
-      (DeviceIndex "0"))
-    (STM32F103XX_LQFP48
-      (FullPartName "STM32F103XX_LQFP48.Normal")
-      (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0")))
-  (LastUsedLibraryBrowseDirectory "E:\Cadence\SPB_15.7\tools\capture\library")
+  (LastUsedLibraryBrowseDirectory "E:\My Programmes\oled\PCB\lib\symbols")
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Charge")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
-      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB")
+      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn")
+      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "IAP")
+      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "Main")
       (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library" "F:\Codes\oled\PCB\oled\library1.olb")
-      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "USB"
-         "PAGE1"))
+      (Select "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn"
+         "IAP" "PAGE1"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -144,29 +144,29 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 207 1285 84 684")
+        (Placement "44 0 1 -1 -1 -4 -28 139 1195 74 667")
+        (Scroll "1381 92")
+        (Zoom "158"))
+      (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Main")
+      (Page "PAGE1"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -4 -28 20 1075 100 693")
+        (Scroll "91 126")
+        (Zoom "114"))
+      (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Main")
+      (Page "PAGE2"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -4 -28 -201 855 78 671")
         (Scroll "0 0")
-        (Zoom "100")
+        (Zoom "114")
         (Occurrence "/"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
       (Schematic "IAP")
-      (Page "PAGE1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 73 1151 50 650")
-        (Scroll "0 0")
-        (Zoom "100"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "Charge")
-      (Page "PAGE1"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 50 1128 -17 583")
-        (Scroll "0 37")
-        (Zoom "100"))
-      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "USB")
       (Page "PAGE1")))
   (MPSSessionName "Administrator"))
