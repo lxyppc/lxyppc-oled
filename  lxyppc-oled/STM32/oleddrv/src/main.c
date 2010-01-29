@@ -204,7 +204,7 @@ int main(void)
     
     if(TimeDisplay){
       CheckConnection();
-      vu16 ccr1 = TIM2->CCR1;
+      vu16 ccr1 = TIM3->CCR1;
       Pos_t x = 6;
       Pos_t y = 3;
       TimeDisplay = 0;
