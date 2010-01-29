@@ -338,6 +338,7 @@
           <state>$PROJ_DIR$\..\FWLib\inc</state>
           <state>$PROJ_DIR$\inc</state>
           <state>$PROJ_DIR$\..\GraphicLib\inc</state>
+          <state>$PROJ_DIR$\..\UsbLib\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2668,6 +2669,9 @@
     <file>
       <name>$PROJ_DIR$\inc\stm32f10x_it.h</name>
     </file>
+  </group>
+  <group>
+    <name>USBLib</name>
   </group>
   <group>
     <name>User</name>
