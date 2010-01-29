@@ -2652,6 +2652,9 @@
       <name>$PROJ_DIR$\inc\bsp.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\inc\Encoder.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\inc\font.h</name>
     </file>
     <file>
@@ -2683,6 +2686,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\DrawText.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\encoder.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\src\font.c</name>

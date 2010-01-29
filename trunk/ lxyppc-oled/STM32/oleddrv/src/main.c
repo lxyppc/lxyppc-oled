@@ -1,8 +1,8 @@
 /*******************************************************************************
 * File Name          : main.c
-* Author             : MCD Application Team
+* Author             : lxyppc
 * Version            : V1.0
-* Date               : 09-11-21
+* Date               : 10-01-21
 * Description        : Main program body
 *******************************************************************************/
 
@@ -13,6 +13,7 @@
 #include "Graphics\Graphics.h"  // Graphic primitives layer
 #include "ClockUI.h"
 #include "ClockSet.h"
+#include "Encoder.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -23,6 +24,8 @@
 #define WAIT_UNTIL_FINISH(x) (x)
 
 /* Private variables ---------------------------------------------------------*/
+static  u32  minute = 0;
+static  s16 encCount = 0;
 static vu32 TimeDisplay = 0;
 static const FontData world[2] = {
     /* Char  Code  width, height,  {data}  */
@@ -92,7 +95,7 @@ int main(void)
   
   InitGraph();
   
-  Initial_Tim2();
+  Enc_Init();
   
   u8  buf[8];
   for(u32 i=0;i<8;i++){
@@ -200,12 +203,29 @@ int main(void)
   }
   Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
+  u32 lastM = minute;
   while(1){
-    
+    if(minute != lastM){
+      lastM = minute;
+      char buf[] = {minute/10+'0',minute%10+'0',0};
+      TextOut(&dev,80,20,buf,0xff);
+      if(encCount<0){
+        encCount = -encCount;
+        char buf[] = {'-',encCount/10+'0',encCount%10+'0',0};
+        TextOut(&dev,100,20,buf,0xff);
+      }else{
+        char buf[] = {'+',encCount/10+'0',encCount%10+'0',0};
+        TextOut(&dev,100,20,buf,0xff);
+      }
+    }
+    if(Enc_IsKeyDown()){
+      char buf[] = {minute/10+'0',minute%10+'0',0};
+      TextOut(&dev,80,40,buf,0xff);
+    }
     if(TimeDisplay){
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
-      Pos_t x = 6;
+      Pos_t x = 64;
       Pos_t y = 3;
       TimeDisplay = 0;
       u32 TimeVar = RTC_GetCounter();
@@ -227,6 +247,30 @@ int main(void)
       Clock_UpdateTime(THH,TMM,TSS);
     }
   }
+}
+
+
+/*******************************************************************************
+* Function Name  : SysTickHandler
+* Description    : This function handles SysTick Handler.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SysTickHandler(void)
+{
+  encCount = Enc_GetCount();
+  if(encCount>0){
+    minute++;
+    if(minute>=60)minute = 0;
+  }else if(encCount<0){
+    if(minute){
+      minute--;
+    }else{
+      minute = 59;
+    }
+  }
+  StartPageTransfer();
 }
 
 /*******************************************************************************
