@@ -173,18 +173,17 @@ void DMA1_Channel5_IRQHandler(void)
 }
 
 /*******************************************************************************
-* Function Name  : SysTickHandler
-* Description    : This function handles SysTick Handler.
+* Function Name  : StartPageTransfer
+* Description    : Start a new page transfer
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SysTickHandler(void)
+void StartPageTransfer(void)
 {
   pageIndex = 0;
   OnPageTransferDone();
 }
-
 
 /*******************************************************************************
   Display related functions
