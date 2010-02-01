@@ -28,16 +28,16 @@
     (RootChangedForceReNetlist "x")
     (DRC_Scope "0")
     (DRC_Action "0")
-    (DRC_Create_Warnings "FALSE")
-    (DRC_Check_Ports "FALSE")
-    (DRC_Check_Off-Page_Connectors "FALSE")
+    (DRC_Create_Warnings "TRUE")
+    (DRC_Check_Ports "TRUE")
+    (DRC_Check_Off-Page_Connectors "TRUE")
     (DRC_Identical_References "TRUE")
     (DRC_Type_Mismatch "TRUE")
-    (DRC_Report_Ports_and_Off-page_Connectors "FALSE")
+    (DRC_Report_Ports_and_Off-page_Connectors "TRUE")
     (DRC_SDT_Compatibility "FALSE")
     (DRC_Report_Off-grid_Objects "FALSE")
     (DRC_Check_Unconnected_Nets "TRUE")
-    (DRC_Check_for_Misleading_TAP "FALSE")
+    (DRC_Check_for_Misleading_TAP "TRUE")
     (DRC_Visible_Power_pins "FALSE")
     (DRC_Report_Netnames "TRUE")
     (DRC_View_Output "FALSE")
@@ -57,7 +57,16 @@
     (File ".\oled.drc"
       (Type "Report"))
     (File ".\oled.bom"
-      (Type "Report")))
+      (Type "Report"))
+    (File ".\allegro\pstxnet.dat"
+      (Type "Report")
+      (DisplayName "pstxnet.dat"))
+    (File ".\allegro\pstxprt.dat"
+      (Type "Report")
+      (DisplayName "pstxprt.dat"))
+    (File ".\allegro\pstchip.dat"
+      (Type "Report")
+      (DisplayName "pstchip.dat")))
   (Folder "Referenced Projects")
   (PartMRUSelector
     (RESISTOR
@@ -161,11 +170,9 @@
     (FileView
       (Path "Design Resources")
       (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn")
+      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "IAP")
       (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "Main")
-      (Path "Design Resources" "Library")
-      (Path "Outputs")
-      (Select "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn"
-         "Main" "Main"))
+      (Path "Outputs"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -175,19 +182,11 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -4 -28 188 1244 63 690")
-        (Scroll "0 223")
-        (Zoom "81"))
+        (Placement "44 0 1 -1 -1 -1 -1 94 1150 42 635")
+        (Scroll "0 0")
+        (Zoom "100")
+        (Occurrence "/"))
       (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "Main")
-      (Page "Main"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 294 1350 105 698")
-        (Scroll "0 181")
-        (Zoom "100"))
-      (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "Main")
-      (Page "Charge")))
+      (Schematic "IAP")
+      (Page "IAPMain")))
   (MPSSessionName "Administrator"))
