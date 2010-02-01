@@ -41,7 +41,7 @@
     (DRC_Visible_Power_pins "FALSE")
     (DRC_Report_Netnames "TRUE")
     (DRC_View_Output "FALSE")
-    (DRC_Report_File "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DRC")
+    (DRC_Report_File "F:\Codes\oled\PCB\oled\OLED.DRC")
     (BOM_Scope "0")
     (BOM_Mode "0")
     (BOM_Report_File "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.BOM")
@@ -69,6 +69,10 @@
       (DisplayName "pstchip.dat")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (Mini-USB
+      (FullPartName "Mini-USB.Normal")
+      (LibraryName "F:\CODES\CADENCE\LIB\SYMBOLS\PQSYMS.OLB")
+      (DeviceIndex "0"))
     (RESISTOR
       (FullPartName "RESISTOR.Normal")
       (LibraryName "E:\CADENCE\SPB_15.7\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
@@ -160,19 +164,15 @@
     (MMA7260
       (FullPartName "MMA7260.Normal")
       (LibraryName "F:\Codes\oled\PCB\TEST\LIBRARY1.OLB")
-      (DeviceIndex "0"))
-    (INDUCTOR
-      (FullPartName "INDUCTOR.Normal")
-      (LibraryName "F:\Codes\oled\PCB\LIB\SYMBOLS\PQSYMS.OLB")
       (DeviceIndex "0")))
   (LastUsedLibraryBrowseDirectory "E:\My Programmes\oled\PCB\lib\symbols")
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn")
-      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "IAP")
-      (Path "Design Resources" "E:\My Programmes\oled\PCB\oled\oled.dsn" "Main")
-      (Path "Outputs"))
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn")
+      (Path "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn" "Main")
+      (Path "Outputs")
+      (Select "Design Resources" "F:\Codes\oled\PCB\oled\oled.dsn"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -182,11 +182,19 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 94 1150 42 635")
+        (Placement "44 0 1 -1 -1 -4 -30 356 1438 109 713")
         (Scroll "0 0")
-        (Zoom "100")
-        (Occurrence "/"))
-      (Path "E:\MY PROGRAMMES\OLED\PCB\OLED\OLED.DSN")
-      (Schematic "IAP")
-      (Page "IAPMain")))
+        (Zoom "100"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Main")
+      (Page "Main"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -1 -1 61 1139 192 792")
+        (Scroll "0 0")
+        (Zoom "100"))
+      (Path "F:\CODES\OLED\PCB\OLED\OLED.DSN")
+      (Schematic "Main")
+      (Page "Charge")))
   (MPSSessionName "Administrator"))
