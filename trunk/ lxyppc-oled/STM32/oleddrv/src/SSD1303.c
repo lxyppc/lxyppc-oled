@@ -102,6 +102,7 @@ void SSD1303_Init(void)
   // Set DC-DC
   WriteCommand(0xAD); /* Set DC-DC */
   WriteCommand(0x8B); /* 8B=ON, 8A=Off */
+  
   // Display ON/OFF
   WriteCommand(0xAE); /* AF=ON , AE=OFF*/
   // Display Offset
@@ -125,6 +126,10 @@ void SSD1303_Init(void)
   
   // Set Common output scan direction
   WriteCommand(0xc8);/* Set COM scan direction */
+  
+  // Set Charge pump
+  WriteCommand(0x80); /* Set Charge pump */
+  WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
   
   // Turn on the display
   WriteCommand(0xaf);
