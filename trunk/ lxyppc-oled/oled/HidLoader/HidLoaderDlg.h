@@ -7,7 +7,7 @@
 #include "HidDialog.h"
 
 #pragma pack(push,1)
-#include "..\..\STM32\oldeLoader\inc\Bootloader.h"
+#include "..\..\STM32\oledLoader\inc\Bootloader.h"
 #pragma pack(pop)
 
 #include "afxwin.h"
@@ -83,6 +83,7 @@ public:
     afx_msg void OnDropFiles(HDROP hDropInfo);
     virtual void OnConnect(LPCTSTR path);
     virtual void OnDisconnect(LPCTSTR path);
+    virtual void OnHidData(void* pData, size_t dataLen);
 public:
     afx_msg void OnBnClickedLoadFile();
 public:
@@ -114,5 +115,14 @@ public:
 	}
 public:
     void ResetRxBuffer(void);
+public:
+    HANDLE  m_hEvent;
+    BYTE    m_buffer[64];
+    CComboBox m_logCombo;
+protected:
+    virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
+public:
+    void EnableItems(bool bEnable);
+    afx_msg void OnBnClickedRunApp();
 };
 

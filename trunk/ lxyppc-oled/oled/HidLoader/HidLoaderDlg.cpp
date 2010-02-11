@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "HidLoader.h"
 #include "HidLoaderDlg.h"
+#include ".\hidloaderdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -50,6 +51,7 @@ CHidLoaderDlg::CHidLoaderDlg(CWnd* pParent /*=NULL*/)
 	: CHidDialog(CHidLoaderDlg::IDD, pParent)
     , m_fileValid(FALSE)
     , m_bDeviceOpen(FALSE)
+    , m_hEvent(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
     m_curDeviceFeature.workMode.value = WS_UNKNOWN;
@@ -61,6 +63,7 @@ void CHidLoaderDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_HEX_VIEW, m_hexView);
     DDX_Control(pDX, IDC_FILE_PATH, m_hexPath);
     DDX_Control(pDX, IDC_PROGRESS1, m_progress);
+    DDX_Control(pDX, IDC_COMBO1, m_logCombo);
 }
 
 BEGIN_MESSAGE_MAP(CHidLoaderDlg, CDialog)
@@ -71,6 +74,7 @@ BEGIN_MESSAGE_MAP(CHidLoaderDlg, CDialog)
     ON_WM_DROPFILES()
     ON_BN_CLICKED(IDC_LOAD_FILE, &CHidLoaderDlg::OnBnClickedLoadFile)
     ON_BN_CLICKED(IDC_UPDATE_FW, &CHidLoaderDlg::OnBnClickedUpdateFw)
+    ON_BN_CLICKED(IDC_RUN_APP, OnBnClickedRunApp)
 END_MESSAGE_MAP()
 
 
@@ -104,6 +108,7 @@ BOOL CHidLoaderDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+    m_hEvent = ::CreateEvent(NULL,FALSE,FALSE,NULL);
     SetTitle(_T("HidLoader"));
     Monitor(0,0,GetSafeHwnd(),LXYPPC_USAGE_PAGE,LXYPPC_USAGE);
     vector<CHidDevice>  devs;
@@ -356,13 +361,25 @@ BOOL CHidLoaderDlg::EnterBootMode(void)
     return TRUE;
 }
 
+void CHidLoaderDlg::OnHidData(void* pData, size_t dataLen)
+{
+    memcpy(m_buffer,pData,dataLen);
+	if(m_hEvent){
+		SetEvent(m_hEvent);
+	}
+}
+
 DWORD CHidLoaderDlg::Program(void)
 {
+    DWORD lastTick = GetTickCount();
     if(!EnterBootMode()){
+        ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Fail to enter bootloader mode!"));
         return -1;
     }
     ResetRxBuffer();
+    ResetEvent(m_hEvent);
 
+    ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Start program device..."));
     USB_OUT_DATA data;
     data.HeadData.ID = 0x01;
     data.HeadData.action = BLC_WRITE;
@@ -370,9 +387,10 @@ DWORD CHidLoaderDlg::Program(void)
     data.HeadData.header.appSize = m_romImage.size();
     data.HeadData.header.appStartAddr = m_romImage.startAddress;
     if(ERROR_SUCCESS != Write(&data,64,0)){
+        ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Fail to write data!"));
         return -1;
     }
-    int romSize = m_romImage.size();
+    const int romSize = m_romImage.size();
     m_progress.SetRange32(0,romSize);
     for(int i=0; i<romSize; i+=60){
         data.ProgData.ID = 0x01;
@@ -384,12 +402,34 @@ DWORD CHidLoaderDlg::Program(void)
         memset(data.ProgData.blockClip,0xff,60);
         memcpy(data.ProgData.blockClip, m_romImage.data()+i,len);
         if(ERROR_SUCCESS != Write(&data,64,0)){
+            ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Fail to write data!"));
             return -1;
         }
         m_progress.SetPos(i);
     }
+    m_progress.SetPos(romSize);
 
-    return 0;
+	if(m_hEvent){
+		if(::WaitForSingleObject(m_hEvent,500) != WAIT_OBJECT_0){
+			this->m_lLastError = ::GetLastError();
+            ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("write device response Timeout"));
+			return -1;
+		}
+		if( (m_buffer[0] == IN_DEFAULT)
+		&&  (m_buffer[1] == BLR_PROG_OK)){
+			lastTick = GetTickCount() - lastTick;
+			static TCHAR buf[128] = _T("");
+			_stprintf(buf,_T("Program finish in  %.2f s (%.2f KBytes)"),lastTick/1000.0f,romSize/1024.0f);
+            ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)buf);
+            return 0;
+        }else{
+            ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Program device fail"));
+            return -1;
+        }
+	}
+	::OutputDebugStringA("Event initial fail\n");
+    ::PostMessage(m_hParent,WM_LOADER,WML_UPDATE_STATUS,(LPARAM)_T("Event initial fail"));
+	return -1;
 }
 
 void CHidLoaderDlg::ResetRxBuffer(void)
@@ -397,4 +437,43 @@ void CHidLoaderDlg::ResetRxBuffer(void)
 	if(!m_hFile)return;
 	BYTE buf[128];
 	HidD_GetIndexedString(m_hFile,RESET_EP1RX,buf,128);
+}
+
+LRESULT CHidLoaderDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+{
+    // TODO: Add your control notification handler code here
+    if(WM_LOADER == message){
+		switch(wParam){
+		case WML_DISABLE_ITEMS:
+			EnableItems(FALSE);
+			break;
+		case WML_ENABLE_ITEMS:
+			EnableItems(TRUE);
+			break;
+		case WML_UPDATE_STATUS:
+			if(lParam){
+				LPCTSTR str = (LPCTSTR)lParam;
+				m_logCombo.AddString(str);
+				m_logCombo.SetWindowText(str);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+    return CHidDialog::WindowProc(message, wParam, lParam);
+}
+
+void CHidLoaderDlg::EnableItems(bool bEnable)
+{
+}
+
+void CHidLoaderDlg::OnBnClickedRunApp()
+{
+    // TODO: Add your control notification handler code here
+    BYTE buf[2] = {0x02, WS_USER};
+    if(SetFeature(buf,2,0) == ERROR_SUCCESS){
+        Sleep(200);
+        UpdateFeature();
+    }
 }
