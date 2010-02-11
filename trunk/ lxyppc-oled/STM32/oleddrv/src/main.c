@@ -14,6 +14,7 @@
 #include "ClockUI.h"
 #include "ClockSet.h"
 #include "Encoder.h"
+#include "..\..\oledLoader\Inc\Export.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -73,9 +74,12 @@ int main(void)
   RCC_Configuration();
   GPIO_AFIODeInit();
   GPIO_DeInit(GPIOB);
+  GPIO_DeInit(GPIOA);
   
   /* NVIC configuration */
   NVIC_Configuration();
+  
+  
   
   /* Initialize the SSD1303 related IO */
   SSD1303_IO_Configuration();
@@ -311,17 +315,23 @@ void CCW_Rotate(unsigned char *des, const unsigned char *src)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+void  RTC_IRQHandler(void);
+void  DMA1_Channel5_IRQHandler(void);
 void NVIC_Configuration(void)
 {
-#ifdef  VECT_TAB_RAM  
-  /* Set the Vector Table base location at 0x20000000 */ 
-  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
-#else  /* VECT_TAB_FLASH  */
-  /* Set the Vector Table base location at 0x08000000 */ 
-  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
-#endif
-  /* 2 bits for pre-emption priority */
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+  
+  RegisterIrq(-1,SysTickHandler);
+  RegisterIrq(RTC_IRQChannel,RTC_IRQHandler);
+  RegisterIrq(DMA1_Channel5_IRQChannel,DMA1_Channel5_IRQHandler);
+//#ifdef  VECT_TAB_RAM  
+//  /* Set the Vector Table base location at 0x20000000 */ 
+//  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+//#else  /* VECT_TAB_FLASH  */
+//  /* Set the Vector Table base location at 0x08000000 */ 
+//  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
+//#endif
+//  /* 2 bits for pre-emption priority */
+//  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 }
 
 /*******************************************************************************
@@ -401,12 +411,14 @@ void  SSD1303_Controller_Init(void)
   DMA_Init(DMA1_Channel5, &DMA_InitStructure);
   
   NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel5_IRQChannel;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
   DMA_ITConfig(DMA1_Channel5, DMA_IT_TC, ENABLE);
+  
+  NVIC_SystemHandlerPriorityConfig(SystemHandler_SysTick,2,0);
   
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
   SysTick_SetReload(72000000/SSD1303_FPS);
@@ -457,7 +469,7 @@ void RTC_Configuration(void)
 #endif
   
   NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQChannel;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
