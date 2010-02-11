@@ -191,7 +191,7 @@ void CHexEditor::OnPaint()
 			rcd.TopLeft().x = m_offAddress;
 			for(int	 i = m_topindex; (i < m_length) && (rcd.TopLeft().y < height); i+= m_bpr)
 			{
-				_stprintf_s(buf, 256, fmt, i+m_startAddress);
+				_stprintf(buf, fmt, i+m_startAddress);
 				dc.DrawText(buf, w, rcd, DT_LEFT|DT_TOP|DT_SINGLELINE|DT_NOPREFIX);
 				rcd.TopLeft().y += m_lineHeight;
 			}

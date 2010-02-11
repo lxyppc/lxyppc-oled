@@ -84,7 +84,7 @@ LONG	CUsbHid::Open(WORD vid, WORD pid, HWND hParent, LPCTSTR filter /*= NULL*/)
 	vector<CHidDevice>	devs;
 	EnumHidDevice(vid,pid,devs,filter);
 	if(devs.size()){
-		_tcscpy_s(m_devicePath,256,devs[devs.size()-1].m_path.c_str());
+		_tcscpy(m_devicePath,devs[devs.size()-1].m_path.c_str());
 		LONG err = Open(devs[devs.size()-1].m_path.c_str());
 		if(err == ERROR_SUCCESS){
 			if(hParent){
@@ -117,7 +117,7 @@ LONG	CUsbHid::Open(WORD vid, WORD pid, HWND hParent, USAGE usagePage, USAGE usag
 	vector<CHidDevice>	devs;
 	EnumHidDevice(vid,pid,devs,usagePage,usage);
 	if(devs.size()){
-		_tcscpy_s(m_devicePath,256,devs[devs.size()-1].m_path.c_str());
+		_tcscpy(m_devicePath,devs[devs.size()-1].m_path.c_str());
 		LONG err = Open(devs[devs.size()-1].m_path.c_str());
 		if(err == ERROR_SUCCESS){
 			if(hParent){
@@ -295,8 +295,8 @@ LRESULT	CUsbHid::OnDeviceChange(WPARAM wParam, LPARAM lParam)
 {
 	TCHAR vid_str[64];
 	TCHAR pid_str[64];
-	_stprintf_s(vid_str,64,_T("VID_%04X"),m_vid);
-	_stprintf_s(pid_str,64,_T("PID_%04X"),m_pid);
+	_stprintf(vid_str,_T("VID_%04X"),m_vid);
+	_stprintf(pid_str,_T("PID_%04X"),m_pid);
 	PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
 	PDEV_BROADCAST_DEVICEINTERFACE pDevInf;
 	if(DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam){
@@ -409,8 +409,8 @@ size_t	EnumHidDevice(WORD vid, WORD pid, vector<CHidDevice>& devs,LPCTSTR lpFilt
 	TCHAR vid_str[64];
 	TCHAR pid_str[64];
 
-	_stprintf_s(vid_str,64,_T("vid_%04x"),vid);
-	_stprintf_s(pid_str,64,_T("pid_%04x"),pid);
+	_stprintf(vid_str,_T("vid_%04x"),vid);
+	_stprintf(pid_str,_T("pid_%04x"),pid);
 
 	HidD_GetHidGuid(&Guid);
 
@@ -517,8 +517,8 @@ size_t	EnumHidDevice(WORD vid, WORD pid, vector<CHidDevice>& devs, USAGE usagePa
 	TCHAR vid_str[64];
 	TCHAR pid_str[64];
 
-	_stprintf_s(vid_str,64,_T("vid_%04x"),vid);
-	_stprintf_s(pid_str,64,_T("pid_%04x"),pid);
+	_stprintf(vid_str,_T("vid_%04x"),vid);
+	_stprintf(pid_str,_T("pid_%04x"),pid);
 
 	HidD_GetHidGuid(&Guid);
 
