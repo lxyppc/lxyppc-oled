@@ -9,6 +9,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_lib.h"
 #include "ClockSet.h"
+#include "..\..\oledLoader\Inc\Export.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -164,6 +165,14 @@ unsigned char  SwitchToHSE(void)
   if(err != SUCCESS){
     RCC_PLLCmd(DISABLE);
     HSI_Config();
+  }else{
+    /* Select USBCLK source */
+    RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
+    
+    /* Enable USB clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
+    
+    InitUSB();
   }
   return err == SUCCESS ? 1 : 0;
 }

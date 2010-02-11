@@ -2275,7 +2275,7 @@
         </option>
         <option>
           <name>XclFile</name>
-          <state>$PROJ_DIR$\lnkarm_flash.xcl</state>
+          <state>$PROJ_DIR$\lnkarm_flash_withLoader.xcl</state>
         </option>
         <option>
           <name>XclFileSlave</name>
@@ -2674,6 +2674,24 @@
     </file>
   </group>
   <group>
+    <name>linkScript</name>
+    <file>
+      <name>$PROJ_DIR$\lnkarm_flash.xcl</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\lnkarm_flash_extsram.xcl</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\lnkarm_flash_withLoader.xcl</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\lnkarm_nor.xcl</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\lnkarm_ram.xcl</name>
+    </file>
+  </group>
+  <group>
     <name>USBLib</name>
   </group>
   <group>
@@ -2688,7 +2706,7 @@
       <name>$PROJ_DIR$\src\DrawText.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\src\encoder.c</name>
+      <name>$PROJ_DIR$\src\Encoder.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\src\font.c</name>
