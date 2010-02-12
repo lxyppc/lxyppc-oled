@@ -60,6 +60,11 @@ LDR_STATUS  WaitAndSendUsbData(u8* pData, u16 size, u8 bForce);
 LDR_STATUS  ReadUsbData(u8* pData, u16 size);
 
 IrqFunc_t   RegisterIrq(int IRQChannel, IrqFunc_t newFunc);
+
+void  ConnectUSB(void);
+
+void  DisconnectUSB(void);
+
 #else   //#ifdef    BOOTLOADER
 #define     WaitAndSendUsbData(pData, size, bForce)\
   ((LDR_STATUS(*)(u32,u32,u32,u32))__SVC)(0,(u32)pData),(u32)size,(u32)bForce)
@@ -70,8 +75,13 @@ IrqFunc_t   RegisterIrq(int IRQChannel, IrqFunc_t newFunc);
 #define     RegisterIrq(IRQChannel, newFunc)\
   ((IrqFunc_t(*)(u32,u32,u32,u32))__SVC)(2,(u32)IRQChannel,(u32)newFunc,0)
 
-#define     InitUSB()\
+#define     ConnectUSB()\
   ((u32(*)(u32,u32,u32,u32))__SVC)(3,0,0,0)
+
+#define     DisconnectUSB()\
+  ((u32(*)(u32,u32,u32,u32))__SVC)(4,0,0,0)
+
+
 
 #endif  //#ifdef    BOOTLOADER
 
