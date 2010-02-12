@@ -117,6 +117,8 @@ BOOL CHidLoaderDlg::OnInitDialog()
         OnConnect(devs[0].m_path.c_str());
     }
     m_hexView.SetDataSize(1024);
+    m_fileTime.dwHighDateTime = 0;
+    m_fileTime.dwLowDateTime = 0;
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -208,6 +210,17 @@ BOOL CHidLoaderDlg::LoadFile(const CString & path)
         m_hexView.SetDataSize(m_romImage.size());
         m_hexView.SetData(m_romImage.data(),m_romImage.size(),m_romImage.startAddress);
         m_hexPath.SetWindowText(path);
+        CString crc;
+        crc.Format(_T("CRC32: 0x%08X"),m_romImage.crc32);
+        GetDlgItem(IDC_CRC_VAL)->SetWindowText(crc);
+
+        WIN32_FIND_DATA find;
+        HANDLE hFind = FindFirstFile(path,&find);
+        if(hFind == INVALID_HANDLE_VALUE){
+            return res;
+        }
+        FindClose(hFind);
+        FileTimeToLocalFileTime(&find.ftLastWriteTime,&m_fileTime);
     }
     return res;
 }
@@ -335,6 +348,27 @@ void CHidLoaderDlg::OnBnClickedUpdateFw()
     if(!m_fileValid){
         return;
     }
+
+    WIN32_FIND_DATA find;
+	CString file;
+	m_hexPath.GetWindowText(file);
+	HANDLE hFind = FindFirstFile(file,&find);
+	if(hFind == INVALID_HANDLE_VALUE){
+		return;
+	}
+	FindClose(hFind);
+	FILETIME ft;
+	SYSTEMTIME   SysTime;
+	FileTimeToLocalFileTime(&find.ftLastWriteTime,&ft);
+	FileTimeToSystemTime(&ft,&SysTime);
+	if(memcmp(&ft,&m_fileTime,sizeof(ft)) != 0){
+		m_fileValid = LoadFile(file);
+	}
+    if(!m_fileValid){
+        return;
+    }
+
+
 	DWORD id;
 	HANDLE hThread = CreateThread(NULL,0,ProgramCallback,this,0,&id);
 	if(hThread){
