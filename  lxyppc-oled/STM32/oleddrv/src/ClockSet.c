@@ -138,6 +138,8 @@ ErrorStatus  HSI_Config(void)
   while(RCC_GetSYSCLKSource() != 0x08)
   {
   }
+  
+  DisconnectUSB();
   return SUCCESS;
 }
 
@@ -166,13 +168,7 @@ unsigned char  SwitchToHSE(void)
     RCC_PLLCmd(DISABLE);
     HSI_Config();
   }else{
-    /* Select USBCLK source */
-    RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
-    
-    /* Enable USB clock */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
-    
-    InitUSB();
+    ConnectUSB();
   }
   return err == SUCCESS ? 1 : 0;
 }
@@ -181,7 +177,8 @@ unsigned char  SwitchToHSE(void)
 void    CheckConnection(void)
 {
   static u8 bConnect = 0;
-  if(GPIOA->IDR & GPIO_Pin_12){
+  if( GPIOD->IDR & GPIO_Pin_3 ){
+  //if(GPIOA->IDR & GPIO_Pin_12){
     // Pull up means usb connected
     if(!bConnect){
       bConnect = 1;
