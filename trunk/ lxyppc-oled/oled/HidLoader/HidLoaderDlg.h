@@ -124,5 +124,6 @@ protected:
 public:
     void EnableItems(bool bEnable);
     afx_msg void OnBnClickedRunApp();
+    FILETIME        m_fileTime;
 };
 
