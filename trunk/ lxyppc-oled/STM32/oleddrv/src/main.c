@@ -71,15 +71,24 @@ int main(void)
 #endif
 
   /* System Clocks Configuration */
-  RCC_Configuration();
+  //RCC_Configuration();
   GPIO_AFIODeInit();
   GPIO_DeInit(GPIOB);
-  GPIO_DeInit(GPIOA);
+  /* The bootloader has already initialize the GPIOA*/
+  //GPIO_DeInit(GPIOA);
+  GPIO_DeInit(GPIOD);
   
   /* NVIC configuration */
   NVIC_Configuration();
   
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOD, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOD, &GPIO_InitStructure);
   
+  RCC_DeInit();
+  CheckConnection();
   
   /* Initialize the SSD1303 related IO */
   SSD1303_IO_Configuration();
@@ -319,19 +328,21 @@ void  RTC_IRQHandler(void);
 void  DMA1_Channel5_IRQHandler(void);
 void NVIC_Configuration(void)
 {
-  
+#if WITH_BOOTLOADER 
   RegisterIrq(-1,SysTickHandler);
   RegisterIrq(RTC_IRQChannel,RTC_IRQHandler);
   RegisterIrq(DMA1_Channel5_IRQChannel,DMA1_Channel5_IRQHandler);
-//#ifdef  VECT_TAB_RAM  
-//  /* Set the Vector Table base location at 0x20000000 */ 
-//  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
-//#else  /* VECT_TAB_FLASH  */
-//  /* Set the Vector Table base location at 0x08000000 */ 
-//  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
-//#endif
-//  /* 2 bits for pre-emption priority */
-//  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+#else
+#ifdef  VECT_TAB_RAM  
+  /* Set the Vector Table base location at 0x20000000 */ 
+  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+#else  /* VECT_TAB_FLASH  */
+  /* Set the Vector Table base location at 0x08000000 */ 
+  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
+#endif
+  /* 2 bits for pre-emption priority */
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+#endif
 }
 
 /*******************************************************************************

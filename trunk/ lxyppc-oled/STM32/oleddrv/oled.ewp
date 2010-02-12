@@ -555,7 +555,7 @@
         </option>
         <option>
           <name>OutputFile</name>
-          <state>GoBot.d79</state>
+          <state>oledDrv.d79</state>
         </option>
         <option>
           <name>OutputFormat</name>
@@ -741,7 +741,7 @@
         </option>
         <option>
           <name>ExtraOutputFile</name>
-          <state>GoBot.sim</state>
+          <state>oledDrv.sim</state>
         </option>
         <option>
           <name>ExtraOutputFormat</name>
@@ -1382,7 +1382,7 @@
         </option>
         <option>
           <name>OutputFile</name>
-          <state>GoBot.d79</state>
+          <state>oledDrv.d79</state>
         </option>
         <option>
           <name>OutputFormat</name>
@@ -1568,7 +1568,7 @@
         </option>
         <option>
           <name>ExtraOutputFile</name>
-          <state>GoBot.sim</state>
+          <state>oledDrv.sim</state>
         </option>
         <option>
           <name>ExtraOutputFormat</name>
@@ -1792,7 +1792,7 @@
         <debug>1</debug>
         <option>
           <name>CCDefines</name>
-          <state>VECT_TAB_FLASH</state>
+          <state>WITH_BOOTLOADER</state>
           <state>_STM32_</state>
         </option>
         <option>
@@ -2395,7 +2395,7 @@
         </option>
         <option>
           <name>ExtraOutputFile</name>
-          <state>GoBot_STM32.hex</state>
+          <state>oledDrv.hex</state>
         </option>
         <option>
           <name>ExtraOutputFormat</name>
