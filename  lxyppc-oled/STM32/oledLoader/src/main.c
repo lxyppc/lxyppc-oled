@@ -73,12 +73,49 @@ IrqFunc_t   RegisterIrq(int IRQChannel, IrqFunc_t newFunc)
   return (IrqFunc_t)old;
 }
 
-#define   SVC_NUMBER      4
+static  u8  bUsbConnect = 0;
+void  ConnectUSB(void)
+{
+  if(bUsbConnect)return;
+  /* Prepare clocks for USB peripheral */
+  RCC_Config();
+    /* Select USBCLK source */
+  RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
+  /* Enable USB clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
+  USB_Init();
+  
+  bUsbConnect = 1;
+}
+
+void  DisconnectUSB(void)
+{
+  if(!bUsbConnect)return;
+  
+  PowerOff();
+  
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
+  
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  GPIOA->BRR = GPIO_Pin_12;
+  
+  bUsbConnect = 0;
+}
+
+
+#define   SVC_NUMBER      5
 void* SVCDisplatchBuf[SVC_NUMBER] = {
   (void*)WaitAndSendUsbData,
   (void*)ReadUsbData,
   (void*)RegisterIrq,
-  (void*)USB_Init,
+  (void*)ConnectUSB,
+  (void*)DisconnectUSB,
 };
 /*******************************************************************************
 * Function Name  : SVCHandler
@@ -101,6 +138,7 @@ void  SVCHandler(void)
   asm("MRS r0, MSP");
   ((void(*)(void))SVCDispatch)();
 }
+
 
 DeviceFeature   deviceFeature;
 void  ProgApp(void);
@@ -139,7 +177,15 @@ u32  PendSVCHandler(PTaskContext stack)
   }
   deviceFeature.workMode.value = activeWorkMode;
   if(newStack){
-    return (u32)newStack;
+    /// Disable all interrupts, except the USB
+    NVIC->ICER[0] = ((0xFFFFFFFF) - ((1<<USB_LP_CAN_RX0_IRQChannel) | (1<<USB_HP_CAN_TX_IRQChannel)) );
+    NVIC->ICER[1] = 0x7FFFFFF;
+    /// Clear all pending interrupts, except the USB
+    NVIC->ICPR[0] = ((0xFFFFFFFF) - ((1<<USB_LP_CAN_RX0_IRQChannel) | (1<<USB_HP_CAN_TX_IRQChannel)) );
+    NVIC->ICPR[1] = 0x7FFFFFF;
+    SysTick_ITConfig(DISABLE);
+    //return (u32)newStack;
+    stack = newStack;
   }
   return (u32)stack;
 }
@@ -163,6 +209,10 @@ int main(void)
   NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x00);
   
   BootloaderInterruptConfig();
+  GPIO_DeInit(GPIOA);
+  
+  bUsbConnect = 1;
+  DisconnectUSB();
   
   deviceFeature.ID = 0x01;
   deviceFeature.flashSize = *((vu16*)0x1FFFF7E0);

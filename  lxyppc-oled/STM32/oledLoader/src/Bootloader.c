@@ -15,9 +15,8 @@ int  ReadDevice(PDATA_BLC_READ pData);
 
 void  ProgApp(void)
 {
-  RCC_Config();
-  Set_USBClock();
-  USB_Init();
+  ConnectUSB();
+  
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC,ENABLE);
   
 #if DEBUG_BOARD
