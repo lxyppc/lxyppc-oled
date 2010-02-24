@@ -49,7 +49,7 @@ xstring CAppSetting::GetStrValue(const xstring& appName, const xstring& keyName,
 void CAppSetting::SetIntValue(const xstring& appName, const xstring& keyName, int defValue)
 {
 	TCHAR s[16];
-	_itot_s(defValue,s,10);
+	_itot(defValue,s,10);
 	BOOL res;
 	res = WritePrivateProfileString(
 		appName.c_str(),
