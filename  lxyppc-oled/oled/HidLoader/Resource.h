@@ -20,8 +20,8 @@
 #define IDC_COMBO1                      1008
 #define IDC_BUTTON2                     1009
 #define IDC_RUN_APP                     1009
-#define IDC_EDIT1                       1010
 #define IDC_CRC_VAL                     1010
+#define IDC_COMBO2                      1011
 
 // Next default values for new objects
 // 
@@ -29,7 +29,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif

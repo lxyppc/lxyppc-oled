@@ -75,6 +75,7 @@ BEGIN_MESSAGE_MAP(CHidLoaderDlg, CDialog)
     ON_BN_CLICKED(IDC_LOAD_FILE, &CHidLoaderDlg::OnBnClickedLoadFile)
     ON_BN_CLICKED(IDC_UPDATE_FW, &CHidLoaderDlg::OnBnClickedUpdateFw)
     ON_BN_CLICKED(IDC_RUN_APP, OnBnClickedRunApp)
+    ON_CBN_SELCHANGE(IDC_FILE_PATH, &CHidLoaderDlg::OnCbnSelchangeFilePath)
 END_MESSAGE_MAP()
 
 
@@ -119,6 +120,20 @@ BOOL CHidLoaderDlg::OnInitDialog()
     m_hexView.SetDataSize(1024);
     m_fileTime.dwHighDateTime = 0;
     m_fileTime.dwLowDateTime = 0;
+
+    int count = m_settings[_T("RecentFile")][_T("count")];
+    m_fileList.clear();
+    m_hexPath.ResetContent();
+    for(int i=0;i<count;i++){
+        TCHAR tmp[16]=_T("");
+        m_fileList.push_back( xstring(m_settings[_T("RecentFile")][_itot(i,tmp,10)]).c_str() );
+        m_hexPath.AddString(*m_fileList.rbegin());
+    }
+    if(!m_fileList.size()){
+        m_settings[_T("RecentFile")][_T("count")] = 0;
+    }else{
+        m_hexPath.SetCurSel(0);
+    }
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -207,11 +222,12 @@ BOOL CHidLoaderDlg::LoadFile(const CString & path)
 {
     BOOL res = m_romImage.LoadHexFile(path);
     if(res){
+        UpdateRecentFileList(path);
         m_hexView.SetDataSize(m_romImage.size());
         m_hexView.SetData(m_romImage.data(),m_romImage.size(),m_romImage.startAddress);
         m_hexPath.SetWindowText(path);
         CString crc;
-        crc.Format(_T("CRC32: 0x%08X"),m_romImage.crc32);
+        crc.Format(_T("0x%08X"),m_romImage.crc32);
         GetDlgItem(IDC_CRC_VAL)->SetWindowText(crc);
 
         WIN32_FIND_DATA find;
@@ -346,7 +362,12 @@ void CHidLoaderDlg::OnBnClickedUpdateFw()
         return;
     }
     if(!m_fileValid){
-        return;
+        CString path;
+        GetDlgItem(IDC_FILE_PATH)->GetWindowText(path);
+        m_fileValid = LoadFile(path);
+        if(!m_fileValid){
+            return;
+        }
     }
 
     WIN32_FIND_DATA find;
@@ -500,6 +521,10 @@ LRESULT CHidLoaderDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 void CHidLoaderDlg::EnableItems(bool bEnable)
 {
+    GetDlgItem(IDC_LOAD_FILE)->EnableWindow(bEnable);
+    GetDlgItem(IDC_UPDATE_FW)->EnableWindow(bEnable);
+    GetDlgItem(IDC_RUN_APP)->EnableWindow(bEnable);
+    GetDlgItem(IDOK)->EnableWindow(bEnable);
 }
 
 void CHidLoaderDlg::OnBnClickedRunApp()
@@ -510,4 +535,41 @@ void CHidLoaderDlg::OnBnClickedRunApp()
         Sleep(200);
         UpdateFeature();
     }
+}
+
+void CHidLoaderDlg::UpdateRecentFileList(const CString& path)
+{
+    list<CString>::iterator it = m_fileList.begin();
+    for(;it!=m_fileList.end();it++){
+        if(it->CompareNoCase(path) == 0){
+            break;
+        }
+    }
+    if(it != m_fileList.end()){
+        m_fileList.erase(it);
+    }
+    m_fileList.push_front(path);
+    int count = (int)m_fileList.size();
+    if(count > 10){
+        count = 10;
+    }
+    it = m_fileList.begin();
+    m_hexPath.ResetContent();
+    m_settings[_T("RecentFile")][_T("count")] = count;
+    for(int i = 0; i< count; i++){
+        TCHAR tmp[16] = _T("");
+        m_settings[_T("RecentFile")][_itot(i,tmp,10)] = LPCTSTR(*it);
+        m_hexPath.AddString(*it);
+        it++;
+    }
+    m_hexPath.SetCurSel(0);
+}
+
+void CHidLoaderDlg::OnCbnSelchangeFilePath()
+{
+    // TODO: Add your control notification handler code here
+    //CString path;
+    //m_hexPath.SetCurSel(m_hexPath.GetCurSel());
+    //GetDlgItem(IDC_FILE_PATH)->GetWindowText(path);
+    //m_fileValid = LoadFile(path);
 }
