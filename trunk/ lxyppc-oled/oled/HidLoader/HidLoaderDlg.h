@@ -4,7 +4,10 @@
 #pragma once
 #include "..\hexedit\hexeditctrl.h"
 #include "..\PICData\hexfileline.h"
+#include "..\AppSetting\AppSetting.h"
 #include "HidDialog.h"
+#include <list>
+using std::list;
 
 #pragma pack(push,1)
 #include "..\..\STM32\oledLoader\inc\Bootloader.h"
@@ -94,7 +97,7 @@ public:
 public:
     CROMImage     m_romImage;
 public:
-    CEdit m_hexPath;
+    CComboBox     m_hexPath;
 public:
     DeviceFeature   m_curDeviceFeature;
 public:
@@ -125,5 +128,11 @@ public:
     void EnableItems(bool bEnable);
     afx_msg void OnBnClickedRunApp();
     FILETIME        m_fileTime;
+    CAppSetting     m_settings;
+    list<CString>   m_fileList;
+public:
+    void UpdateRecentFileList(const CString& path);
+public:
+    afx_msg void OnCbnSelchangeFilePath();
 };
 

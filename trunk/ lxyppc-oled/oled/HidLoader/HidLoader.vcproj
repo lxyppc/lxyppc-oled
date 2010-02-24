@@ -255,6 +255,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="AppSetting"
+				>
+				<File
+					RelativePath="..\AppSetting\AppSetting.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
