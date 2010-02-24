@@ -175,6 +175,13 @@
 					RelativePath="..\USB\Src\UsbHid.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="AppSetting"
+				Filter="">
+				<File
+					RelativePath="..\AppSetting\AppSetting.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
