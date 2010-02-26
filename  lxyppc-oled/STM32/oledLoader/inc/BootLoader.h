@@ -11,6 +11,8 @@
 //// Usage page and usage for the bootloader interface
 #define   LXYPPC_USAGE_PAGE         0x97
 #define   LXYPPC_USAGE              0x01
+#define   LXYPPC_VID                0x1985
+#define   LXYPPC_PID                0x1017
 
 typedef struct _DataHeader
 {

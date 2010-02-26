@@ -38,10 +38,10 @@ const u8 USERHID_DeviceDescriptor[USERHID_SIZ_DEVICE_DESC] =
     0x00,                       /*bDeviceSubClass*/
     0x00,                       /*bDeviceProtocol*/
     0x40,                       /*bMaxPacketSize40*/
-    0x85,                       /*idVendor (0x1985)*/
-    0x19,
-    0x17,                       /*idProduct = 0x1017*/
-    0x10,                       //
+    (u8)LXYPPC_VID,             /*idVendor (0x1985)*/
+    (u8)(LXYPPC_VID>>8),
+    (u8)LXYPPC_PID,             /*idProduct = 0x1017*/
+    (u8)(LXYPPC_PID>>8),
     (u8)DEV_VERSION,            /*bcdDevice rel.  2.60*/
     (u8)(DEV_VERSION>>8),
     1,                          /*Index of string descriptor describing
