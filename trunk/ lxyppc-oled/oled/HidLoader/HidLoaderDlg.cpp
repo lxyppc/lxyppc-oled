@@ -111,9 +111,9 @@ BOOL CHidLoaderDlg::OnInitDialog()
 	// TODO: Add extra initialization here
     m_hEvent = ::CreateEvent(NULL,FALSE,FALSE,NULL);
     SetTitle(_T("HidLoader"));
-    Monitor(0,0,GetSafeHwnd(),LXYPPC_USAGE_PAGE,LXYPPC_USAGE);
+    Monitor(LXYPPC_VID,LXYPPC_PID,GetSafeHwnd());
     vector<CHidDevice>  devs;
-    ::EnumHidDevice(0x0,0x0,devs,LXYPPC_USAGE_PAGE,LXYPPC_USAGE);
+    ::EnumHidDevice(LXYPPC_VID,LXYPPC_PID,devs);
     if(devs.size()){
         OnConnect(devs[0].m_path.c_str());
     }
