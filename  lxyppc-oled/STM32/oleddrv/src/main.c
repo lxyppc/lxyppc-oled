@@ -15,6 +15,7 @@
 #include "ClockSet.h"
 #include "Encoder.h"
 #include "..\..\oledLoader\Inc\Export.h"
+#include "time.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -64,12 +65,10 @@ void Initial_Tim2(void);
 *******************************************************************************/
 int main(void)
 {
-  SHORT width, height;
   SHORT counter;
 #ifdef DEBUG
   debug();
 #endif
-
   /* System Clocks Configuration */
   //RCC_Configuration();
   GPIO_AFIODeInit();
@@ -235,6 +234,13 @@ int main(void)
       char buf[] = {minute/10+'0',minute%10+'0',0};
       TextOut(&dev,80,40,buf,0xff);
     }
+    char buf[64];
+    if(ReadUsbData(buf,64) == LDR_SUCCESS){
+      if(buf[1] == 0xAA){
+        RTC_SetCounter(*(u32*)(buf+4));
+        RTC_WaitForLastTask();
+      }
+    }
     if(TimeDisplay){
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
@@ -249,15 +255,23 @@ int main(void)
       TMM = (TimeVar % 3600) / 60;
       /* Compute seconds */
       TSS = (TimeVar % 3600) % 60;
-      char tBuf[10] = {
+      char tBuf[64] = {
+        1,
         THH/10 + '0',THH%10 + '0',
         ':',
         TMM/10 + '0',TMM%10 + '0',
         ':',
         TSS/10 + '0',TSS%10 + '0',
       };
-      x = TextOut(&dev,x,y,tBuf,0xff);
+      x = TextOut(&dev,x,y,tBuf+1,0xff);
       Clock_UpdateTime(THH,TMM,TSS);
+      time_t now = (time_t)TimeVar;
+      char* p = ctime(&now);
+      for(u32 i=0;i<26;){
+        i++;
+        tBuf[i] = *p++;
+      }
+      WaitAndSendUsbData(tBuf,64,1);
     }
   }
 }
