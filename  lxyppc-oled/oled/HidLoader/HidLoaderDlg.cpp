@@ -121,7 +121,7 @@ BOOL CHidLoaderDlg::OnInitDialog()
     m_fileTime.dwHighDateTime = 0;
     m_fileTime.dwLowDateTime = 0;
 
-    int count = m_settings[_T("RecentFile")][_T("count")];
+    int count = m_settings[_T("RecentFile")][_T("count")](0);
     m_fileList.clear();
     m_hexPath.ResetContent();
     for(int i=0;i<count;i++){
@@ -129,9 +129,7 @@ BOOL CHidLoaderDlg::OnInitDialog()
         m_fileList.push_back( xstring(m_settings[_T("RecentFile")][_itot(i,tmp,10)]).c_str() );
         m_hexPath.AddString(*m_fileList.rbegin());
     }
-    if(!m_fileList.size()){
-        m_settings[_T("RecentFile")][_T("count")] = 0;
-    }else{
+    if(m_fileList.size()){
         m_hexPath.SetCurSel(0);
     }
 	return TRUE;  // return TRUE  unless you set the focus to a control
