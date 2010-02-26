@@ -87,14 +87,23 @@ int CRet::operator=(int val)
     return m_set.m_appSet.GetIntValue(m_set.m_name,m_key);
 }
 
-CRet::operator LPCTSTR()
-{
-    return m_set.m_appSet.GetStrValue(m_set.m_name,m_key).c_str();
-}
-
 CRet::operator xstring()
 {
     return m_set.m_appSet.GetStrValue(m_set.m_name,m_key);
+}
+
+CRet& CRet::operator()(int val){
+    if(xstring(*this) == _T("")){
+        *this = val;
+    }
+    return *this;
+}
+
+CRet& CRet::operator()(const xstring& val){
+    if(xstring(*this) == _T("")){
+        *this = val;
+    }
+    return *this;
 }
 
 xstring CRet::operator=(const xstring& val)

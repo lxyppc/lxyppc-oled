@@ -27,14 +27,14 @@ struct  CSetting
 
 struct  CRet
 {
-    CRet(CSetting& set, const xstring& key):m_set(set)
-    ,m_key(key){}
+    CRet(CSetting& set, const xstring& key):m_set(set),m_key(key){}
     CRet(const CRet& r):m_val(r.m_val),m_set(r.m_set),m_key(r.m_key){}
     operator int();
-    int operator=(int val);
-    operator LPCTSTR();
     operator xstring();
     xstring operator=(const xstring& val);
+    int operator=(int val);
+    CRet& operator()(int val);
+    CRet& operator()(const xstring& val);
     int m_val;
     CSetting& m_set;
     const xstring& m_key;
@@ -45,7 +45,6 @@ class CAppSetting
 public:
     CAppSetting(void);
     CAppSetting(const xstring& iniName):m_iniName(iniName){}
-public:
     ~CAppSetting(void);
     int GetIntValue(const xstring& appName, const xstring& keyName, int defValue = 0);
     xstring GetStrValue(const xstring& appName, const xstring& keyName, const xstring& defValue = _T(""));
