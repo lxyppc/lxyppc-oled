@@ -468,6 +468,16 @@ void RTC_Configuration(void)
   /* Allow access to BKP Domain */
   PWR_BackupAccessCmd(ENABLE);
   
+  NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQChannel;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  if(BKP_ReadBackupRegister(BKP_DR1) == 0xA5A5){
+    return;
+  }
+  
   /* Reset Backup Domain */
   BKP_DeInit();
   
@@ -493,12 +503,6 @@ void RTC_Configuration(void)
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);  
 #endif
   
-  NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQChannel;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  
   /* Enable RTC Clock */
   RCC_RTCCLKCmd(ENABLE);
   /* Wait for RTC registers synchronization */
@@ -522,6 +526,12 @@ void RTC_Configuration(void)
   
   /* Wait until last write operation on RTC registers has finished */
   RTC_WaitForLastTask();
+  
+  RTC_SetCounter(0x4B880000);
+  
+  RTC_WaitForLastTask();
+  
+  BKP_WriteBackupRegister(BKP_DR1, 0xA5A5);
 }
 
 /*******************************************************************************
