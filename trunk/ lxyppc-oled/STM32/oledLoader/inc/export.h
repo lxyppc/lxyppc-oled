@@ -67,10 +67,10 @@ void  DisconnectUSB(void);
 
 #else   //#ifdef    BOOTLOADER
 #define     WaitAndSendUsbData(pData, size, bForce)\
-  ((LDR_STATUS(*)(u32,u32,u32,u32))__SVC)(0,(u32)pData),(u32)size,(u32)bForce)
+  ((LDR_STATUS(*)(u32,u32,u32,u32))__SVC)(0,(u32)pData,(u32)size,(u32)bForce)
 
 #define     ReadUsbData(pData, size)\
-  ((LDR_STATUS(*)(u32,u32,u32,u32))__SVC)(1,(u32)pData),(u32)size,0)
+  ((LDR_STATUS(*)(u32,u32,u32,u32))__SVC)(1,(u32)pData,(u32)size,0)
 
 #define     RegisterIrq(IRQChannel, newFunc)\
   ((IrqFunc_t(*)(u32,u32,u32,u32))__SVC)(2,(u32)IRQChannel,(u32)newFunc,0)
