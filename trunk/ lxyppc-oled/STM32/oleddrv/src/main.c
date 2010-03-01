@@ -474,6 +474,19 @@ void RTC_Configuration(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
+  
+  /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
+
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+  
+  /* Enable the RTC Second */  
+  RTC_ITConfig(RTC_IT_SEC, ENABLE);
+
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+  
   if(BKP_ReadBackupRegister(BKP_DR1) == 0xA5A5){
     return;
   }
@@ -505,17 +518,6 @@ void RTC_Configuration(void)
   
   /* Enable RTC Clock */
   RCC_RTCCLKCmd(ENABLE);
-  /* Wait for RTC registers synchronization */
-  RTC_WaitForSynchro();
-
-  /* Wait until last write operation on RTC registers has finished */
-  RTC_WaitForLastTask();
-  
-  /* Enable the RTC Second */  
-  RTC_ITConfig(RTC_IT_SEC, ENABLE);
-
-  /* Wait until last write operation on RTC registers has finished */
-  RTC_WaitForLastTask();
   
   /* Set RTC prescaler: set RTC period to 1sec */
 #ifdef RTCClockSource_LSI
