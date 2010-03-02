@@ -12,7 +12,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define   ENCODER_TIM             TIM3
+#define   ENCODER_TIM             TIM4
 /*
     0000: No filter, sampling is done at
     0001: fSAMPLING=fCK_INT, N=2.
@@ -59,13 +59,19 @@ void  Enc_Init(void)
   
   /* Enable SPI1 and GPIO clocks */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4,ENABLE);
   
   // PA.6,PA.7 for encoder, PA.0 for the encoder button
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_6 | GPIO_Pin_7;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA,&GPIO_InitStructure);
+  
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB,&GPIO_InitStructure);
   
       /* Timer configuration in Encoder mode */
   TIM_DeInit(ENCODER_TIM);

@@ -19,8 +19,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-//#define   RTCClockSource_LSI
-#define   RTCClockSource_LSE
+#define   RTCClockSource_LSI
+//#define   RTCClockSource_LSE
 
 /* Private macro -------------------------------------------------------------*/
 #define WAIT_UNTIL_FINISH(x) (x)
@@ -53,6 +53,7 @@ void SSD1303_Controller_Init(void);
 void CCW_Rotate(unsigned char *des, const unsigned char *src);
 void RTC_Configuration(void);
 void Initial_Tim2(void);
+void InitialIO(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -80,11 +81,7 @@ int main(void)
   /* NVIC configuration */
   NVIC_Configuration();
   
-  GPIO_InitTypeDef GPIO_InitStructure;
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOD, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  InitialIO();
   
   RCC_DeInit();
   CheckConnection();
@@ -114,7 +111,7 @@ int main(void)
     buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
   }
   
-  while(0){
+  while(1){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
       DelayMs(500);
@@ -244,8 +241,8 @@ int main(void)
     if(TimeDisplay){
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
-      Pos_t x = 64;
-      Pos_t y = 3;
+      Pos_t x = 56;
+      Pos_t y = 0;
       TimeDisplay = 0;
       u32 TimeVar = RTC_GetCounter();
       u32 THH = 0, TMM = 0, TSS = 0;
@@ -263,7 +260,7 @@ int main(void)
         ':',
         TSS/10 + '0',TSS%10 + '0',
       };
-      x = TextOut(&dev,x,y,tBuf+1,0xff);
+      //x = TextOut(&dev,x,y,tBuf+1,0xff);
       Clock_UpdateTime(THH,TMM,TSS);
       time_t now = (time_t)TimeVar;
       char* p = ctime(&now);
@@ -271,11 +268,58 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
+      x = TextOut(&dev,x,y,tBuf+11,0x9);
       WaitAndSendUsbData(tBuf,64,1);
+      ToggleLED();
     }
   }
 }
 
+/*******************************************************************************
+* Function Name  : InitialIO
+* Description    : Initial the GPIOs
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void InitialIO(void)
+{
+#ifdef  DEBUG_BOARD
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOD, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOD, &GPIO_InitStructure);
+#else
+  GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
+  
+  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+  
+  // PA8 is the led 
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  // PB4 for PGOOD signal, PB5 for CHG signal
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  // PB8 for GSel 2, PB9 for GSel2
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  GSel1_Low();
+  GSel2_Low();
+  LED_ON();
+#endif
+}
 
 /*******************************************************************************
 * Function Name  : SysTickHandler
@@ -474,20 +518,20 @@ void RTC_Configuration(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
-  
-  /* Wait for RTC registers synchronization */
-  RTC_WaitForSynchro();
-
-  /* Wait until last write operation on RTC registers has finished */
-  RTC_WaitForLastTask();
-  
   /* Enable the RTC Second */  
   RTC_ITConfig(RTC_IT_SEC, ENABLE);
 
   /* Wait until last write operation on RTC registers has finished */
-  RTC_WaitForLastTask();
+  RTC_WaitForLastTask(); 
   
   if(BKP_ReadBackupRegister(BKP_DR1) == 0xA5A5){
+    
+    /* Wait for RTC registers synchronization */
+    RTC_WaitForSynchro();
+
+    /* Wait until last write operation on RTC registers has finished */
+    RTC_WaitForLastTask();
+  
     return;
   }
   
@@ -504,7 +548,7 @@ void RTC_Configuration(void)
 
   /* Select LSI as RTC Clock Source */
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);  
-#elif defined	RTCClockSource_LSE  
+#elif defined	RTCClockSource_LSE
   /* Enable LSE */
   RCC_LSEConfig(RCC_LSE_ON);
   /* Wait till LSE is ready */
@@ -518,6 +562,9 @@ void RTC_Configuration(void)
   
   /* Enable RTC Clock */
   RCC_RTCCLKCmd(ENABLE);
+ 
+  /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
   
   /* Set RTC prescaler: set RTC period to 1sec */
 #ifdef RTCClockSource_LSI
