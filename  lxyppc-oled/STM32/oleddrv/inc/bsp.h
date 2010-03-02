@@ -47,4 +47,19 @@ D1/Data 3  4  D0/Clk
 
 #define   SSD1303_FPS                   50
 
+
+
+#define   IsLedOn()       (!(GPIOA->ODR & GPIO_Pin_8))
+#define   LED_ON()        GPIOA->BRR = GPIO_Pin_8
+#define   LED_OFF()       GPIOA->BSRR = GPIO_Pin_8
+#define   ToggleLED()     if(GPIOA->ODR & GPIO_Pin_8){GPIOA->BRR = GPIO_Pin_8;}\
+                          else{GPIOA->BSRR = GPIO_Pin_8;}
+
+#define   IsCHG()         (!(GPIOB->IDR & GPIO_Pin_5))
+#define   IsPGOOD()       (!(GPIOB->IDR & GPIO_Pin_4))
+
+#define   GSel1_High()    GPIOB->BSRR = GPIO_Pin_9
+#define   GSel1_Low()     GPIOB->BRR = GPIO_Pin_9
+#define   GSel2_High()    GPIOB->BSRR = GPIO_Pin_8
+#define   GSel2_Low()     GPIOB->BRR = GPIO_Pin_8
 #endif

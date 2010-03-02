@@ -10,6 +10,7 @@
 #include "stm32f10x_lib.h"
 #include "ClockSet.h"
 #include "..\..\oledLoader\Inc\Export.h"
+#include "bsp.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -177,7 +178,9 @@ unsigned char  SwitchToHSE(void)
 void    CheckConnection(void)
 {
   static u8 bConnect = 0;
-  if( GPIOD->IDR & GPIO_Pin_3 ){
+  if(1){
+  //if(IsPGOOD()){
+  //if( GPIOD->IDR & GPIO_Pin_3 ){
   //if(GPIOA->IDR & GPIO_Pin_12){
     // Pull up means usb connected
     if(!bConnect){
@@ -226,7 +229,7 @@ unsigned char  SwitchToHSI(void)
 void Initial_Tim2(void)
 {
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  TIM_OCInitTypeDef  TIM_OCInitStructure;
+//  TIM_OCInitTypeDef  TIM_OCInitStructure;
   TIM_ICInitTypeDef  TIM_ICInitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
   

@@ -88,7 +88,7 @@ void SSD1303_Init(void)
   WriteCommand(0x40); /* Set Display Start Line */
   // Contrast Control Register
   WriteCommand(0x81); /* Set Contrast Control */
-  WriteCommand(0x1f); /* 0 ~ 255 0x1f*/
+  WriteCommand(0xCf); /* 0 ~ 255 0x1f*/
   // Re-map
   WriteCommand(0xA1); /* [A0]:column address 0 is map 
   to SEG0 , [A1]: columnaddress 131 is map to SEG0*/ 
@@ -128,7 +128,7 @@ void SSD1303_Init(void)
   WriteCommand(0xc8);/* Set COM scan direction */
   
   // Set Charge pump
-  WriteCommand(0x80); /* Set Charge pump */
+  WriteCommand(0x8D); /* Set Charge pump */
   WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
   
   // Turn on the display
@@ -155,8 +155,8 @@ void  OnPageTransferDone(void)
   }
   SSD_A0_High();
   DMA1_Channel5->CCR &= ((u32)0xFFFFFFFE);
-  DMA1_Channel5->CNDTR = SSD1303_COLUMN_NUMBER+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
-  DMA1_Channel5->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex - SSD1303_COLUMN_MARGIN_START);
+  DMA1_Channel5->CNDTR = SSD1303_COLUMN_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
+  DMA1_Channel5->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex);
   //DMA_Cmd(DMA1_Channel5, ENABLE);
   DMA1_Channel5->CCR |= ((u32)0x00000001);
   pageIndex++;
