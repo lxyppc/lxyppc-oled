@@ -241,7 +241,7 @@ int main(void)
     if(TimeDisplay){
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
-      Pos_t x = 56;
+      Pos_t x = 64;
       Pos_t y = 0;
       TimeDisplay = 0;
       u32 TimeVar = RTC_GetCounter();
@@ -268,7 +268,7 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
-      x = TextOut(&dev,x,y,tBuf+11,0x9);
+      x = TextOut(&dev,x,y,tBuf+12,0x8);
       WaitAndSendUsbData(tBuf,64,1);
       ToggleLED();
     }
