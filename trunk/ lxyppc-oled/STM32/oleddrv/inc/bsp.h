@@ -62,4 +62,18 @@ D1/Data 3  4  D0/Clk
 #define   GSel1_Low()     GPIOB->BRR = GPIO_Pin_9
 #define   GSel2_High()    GPIOB->BSRR = GPIO_Pin_8
 #define   GSel2_Low()     GPIOB->BRR = GPIO_Pin_8
+
+#define   MMA_SLEEP()     GPIOB->BRR = GPIO_Pin_11
+#define   MMA_WAKEUP()    GPIOB->BSRR = GPIO_Pin_11
+
+#define   AD_CH_BAT       ADC_Channel_4
+#define   AD_CH_X         ADC_Channel_1
+#define   AD_CH_Y         ADC_Channel_2
+#define   AD_CH_Z         ADC_Channel_3
+#define   AD_CH_CHG       ADC_Channel_9
+
+#define   DMA_SSD_1303    DMA1_Channel5
+#define   DMA_Handler_SSD_1303    DMA1_Channel5_IRQHandler
+#define   DMA_ADC         DMA1_Channel1
+
 #endif
