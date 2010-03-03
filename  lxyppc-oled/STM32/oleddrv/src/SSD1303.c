@@ -154,11 +154,11 @@ void  OnPageTransferDone(void)
     WriteCommand(0x10);
   }
   SSD_A0_High();
-  DMA1_Channel5->CCR &= ((u32)0xFFFFFFFE);
-  DMA1_Channel5->CNDTR = SSD1303_COLUMN_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
-  DMA1_Channel5->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex);
-  //DMA_Cmd(DMA1_Channel5, ENABLE);
-  DMA1_Channel5->CCR |= ((u32)0x00000001);
+  DMA_SSD_1303->CCR &= ((u32)0xFFFFFFFE);
+  DMA_SSD_1303->CNDTR = SSD1303_COLUMN_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
+  DMA_SSD_1303->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex);
+  //DMA_Cmd(DMA_SSD_1303, ENABLE);
+  DMA_SSD_1303->CCR |= ((u32)0x00000001);
   pageIndex++;
 }
 
@@ -169,7 +169,7 @@ void  OnPageTransferDone(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void DMA1_Channel5_IRQHandler(void)
+void DMA_Handler_SSD_1303(void) //DMA1_Channel5_IRQHandler(void)
 {
   if(DMA_GetITStatus(DMA1_IT_TC5)){
     DMA_ClearITPendingBit(DMA1_IT_GL5);

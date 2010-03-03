@@ -19,8 +19,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define   RTCClockSource_LSI
-//#define   RTCClockSource_LSE
+//#define   RTCClockSource_LSI
+#define   RTCClockSource_LSE
 
 /* Private macro -------------------------------------------------------------*/
 #define WAIT_UNTIL_FINISH(x) (x)
@@ -44,6 +44,13 @@ static const FontData world[2] = {
                    0x00,0xFD,0x02,0x02,0x04,0x0C,0x04,0x00,
                    }},
 };
+static  const char HexTable[] = "0123456789ABCDEF";
+struct{
+  u16   ADBat;
+  u16   ADX;
+  u16   ADY;
+  u16   ADZ;
+}ADCResult;
 
 /* Private function prototypes -----------------------------------------------*/
 void RCC_Configuration(void);
@@ -54,6 +61,7 @@ void CCW_Rotate(unsigned char *des, const unsigned char *src);
 void RTC_Configuration(void);
 void Initial_Tim2(void);
 void InitialIO(void);
+void InitialADC(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -82,6 +90,7 @@ int main(void)
   NVIC_Configuration();
   
   InitialIO();
+  InitialADC();
   
   RCC_DeInit();
   CheckConnection();
@@ -111,7 +120,7 @@ int main(void)
     buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
   }
   
-  while(1){
+  while(0){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
       DelayMs(500);
@@ -252,14 +261,7 @@ int main(void)
       TMM = (TimeVar % 3600) / 60;
       /* Compute seconds */
       TSS = (TimeVar % 3600) % 60;
-      char tBuf[64] = {
-        1,
-        THH/10 + '0',THH%10 + '0',
-        ':',
-        TMM/10 + '0',TMM%10 + '0',
-        ':',
-        TSS/10 + '0',TSS%10 + '0',
-      };
+      char tBuf[64];
       //x = TextOut(&dev,x,y,tBuf+1,0xff);
       Clock_UpdateTime(THH,TMM,TSS);
       time_t now = (time_t)TimeVar;
@@ -268,11 +270,141 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
-      x = TextOut(&dev,x,y,tBuf+12,0x8);
+      TextOut(&dev,x,y,tBuf+12,0x8);
+      {
+        u32 res = ADCResult.ADBat;
+        res = res * 328 * 136 / (4096*100);
+//        char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
+//        HexTable[(res>>8)&0xF],HexTable[(res>>4)&0xF],HexTable[res&0xF],0};
+        
+        char ADBuf[] = {'B', 'a', 't', HexTable[(res/100)%10], '.', 
+        HexTable[(res/10)%10], HexTable[res%10],'V', 0};
+        y+=16;
+        TextOut(&dev,x,y,ADBuf,8);
+      }
+      {
+        u16 res = ADCResult.ADX;
+        char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
+        HexTable[(res>>8)&0xF],HexTable[(res>>4)&0xF],HexTable[res&0xF],
+        ' ', IsPGOOD() ? 'P' : 'X', 0};
+        y+=16;
+        TextOut(&dev,x,y,ADBuf,8);
+      }
+      {
+        u16 res = ADCResult.ADY;
+        char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
+        HexTable[(res>>8)&0xF],HexTable[(res>>4)&0xF],HexTable[res&0xF],
+        ' ', IsCHG() ? 'C' : 'X', 0};
+        y+=16;
+        TextOut(&dev,x,y,ADBuf,8);
+      }
+      
       WaitAndSendUsbData(tBuf,64,1);
       ToggleLED();
     }
   }
+}
+
+/*******************************************************************************
+* Function Name  : InitialADC
+* Description    : Initial the ADC for voltage measure
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void InitialADC(void)
+{
+  ADC_InitTypeDef ADC_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  DMA_InitTypeDef  DMA_InitStructure;
+  
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA
+                       | RCC_APB2Periph_GPIOB
+                       | RCC_APB2Periph_ADC1
+                       | RCC_APB2Periph_ADC2,   ENABLE);
+  
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  
+  /* Configure PC.0(ADC Channel1, Channel2, )
+   as analog input -----------------------------------------------------------*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  RCC_ADCCLKConfig(RCC_PCLK2_Div6); /// 12MHz for ADC clock
+  
+  /* Here we config the ADC1 and ADC2  in regular simultaneous mode
+     They are trigerred by TIM3 TRGO signal
+    The result will stored in ADC1's DR,
+  */
+  ADC_DeInit(ADC1);
+  ADC_DeInit(ADC2);
+  
+  ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
+  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+  ADC_InitStructure.ADC_ExternalTrigConv = 
+    ADC_ExternalTrigConv_None;
+    //ADC_ExternalTrigConv_T3_TRGO;
+    //ADC_ExternalTrigConv_T2_CC2;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_NbrOfChannel = 2;
+  ADC_Init(ADC1, &ADC_InitStructure);
+  ADC_Init(ADC2, &ADC_InitStructure);
+  
+  ADC_RegularChannelConfig(ADC1, AD_CH_BAT, 1, ADC_SampleTime_55Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_X, 1, ADC_SampleTime_55Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_Y, 2, ADC_SampleTime_55Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_Z, 2, ADC_SampleTime_55Cycles5);
+  
+  /* Initialize the ADC DMA channel */
+  ADC_DMACmd(ADC1,ENABLE);
+  DMA_DeInit(DMA_ADC);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)(&ADC1->DR);
+  DMA_InitStructure.DMA_MemoryBaseAddr = (u32)&ADCResult;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = 2;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;//DMA_Priority_Low DMA_Priority_VeryHigh;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA_ADC, &DMA_InitStructure);
+//  NVIC_InitStructure.NVIC_IRQChannel = GetDMAIrqChannel(AD_DMA_Channel);
+//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//  NVIC_Init(&NVIC_InitStructure);
+//  DMA_ITConfig(AD_DMA_Channel, DMA_IT_TC, ENABLE);
+  DMA_Cmd(DMA_ADC, ENABLE);
+  
+  
+  //ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+  ADC_ExternalTrigConvCmd(ADC2, ENABLE);
+  ADC_Cmd(ADC1, ENABLE);
+  ADC_Cmd(ADC2, ENABLE);
+  
+  ADC_ResetCalibration(ADC1);
+  /* Check the end of ADC1 reset calibration register */
+  while(ADC_GetResetCalibrationStatus(ADC1));
+  /* Start ADC1 calibaration */
+  ADC_StartCalibration(ADC1);
+  /* Check the end of ADC1 calibration */
+  while(ADC_GetCalibrationStatus(ADC1));
+  
+  
+  ADC_ResetCalibration(ADC2);
+  /* Check the end of ADC1 reset calibration register */
+  while(ADC_GetResetCalibrationStatus(ADC2));
+  /* Start ADC1 calibaration */
+  ADC_StartCalibration(ADC2);
+  /* Check the end of ADC1 calibration */
+  while(ADC_GetCalibrationStatus(ADC2));
 }
 
 /*******************************************************************************
@@ -309,8 +441,8 @@ void InitialIO(void)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
   
-  // PB8 for GSel 2, PB9 for GSel2
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+  // PB8 for GSel 2, PB9 for GSel2, PB11 for MMA Sleep
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -318,6 +450,7 @@ void InitialIO(void)
   GSel1_Low();
   GSel2_Low();
   LED_ON();
+  MMA_WAKEUP();
 #endif
 }
 
@@ -342,6 +475,8 @@ void SysTickHandler(void)
     }
   }
   StartPageTransfer();
+  
+  ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 }
 
 /*******************************************************************************
