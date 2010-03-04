@@ -121,8 +121,7 @@ int main(void)
     buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
   }
   
-  while(1){
-    goto textShow;
+  while(0){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
       DelayMs(500);
@@ -184,7 +183,6 @@ int main(void)
     SetColor(BLACK);
     ClearDevice();
     
-  textShow:    
       /* Draw a box */
     for(u32 x=0;x<128;x++){
       SetPoint(&dev,x,0);
@@ -253,7 +251,7 @@ int main(void)
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
       Pos_t x = 64;
-      Pos_t y = 0;
+      Pos_t y = 16;
       TimeDisplay = 0;
       u32 TimeVar = RTC_GetCounter();
       u32 THH = 0, TMM = 0, TSS = 0;
@@ -263,7 +261,7 @@ int main(void)
       TMM = (TimeVar % 3600) / 60;
       /* Compute seconds */
       TSS = (TimeVar % 3600) % 60;
-      char tBuf[64];
+      char tBuf[64] = {1};
       //x = TextOut(&dev,x,y,tBuf+1,0xff);
       Clock_UpdateTime(THH,TMM,TSS);
       time_t now = (time_t)TimeVar;
@@ -272,8 +270,12 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
-      TextOut(&dev,x,y,tBuf+12,5);
-      {
+      TextOut(&dev,x,y,tBuf+12,8);
+      TextOut(&dev,x,y+16,tBuf+5,6);
+      TextOut(&dev,x,y+32,tBuf+21,4);
+      TextOut(&dev,x+32,y+32,tBuf+20,1);
+      TextOut(&dev,x+40,y+32,tBuf+1,3);
+      if(0){
         u32 res = ADCResult.ADBat;
         res = res * 328 * 136 / (4096*100);
 //        char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
@@ -284,7 +286,7 @@ int main(void)
         y+=16;
         TextOut(&dev,x,y,ADBuf,8);
       }
-      {
+      if(0){
         u16 res = ADCResult.ADX;
         char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
         HexTable[(res>>8)&0xF],HexTable[(res>>4)&0xF],HexTable[res&0xF],
@@ -292,7 +294,7 @@ int main(void)
         y+=16;
         TextOut(&dev,x,y,ADBuf,8);
       }
-      {
+      if(0){
         u16 res = ADCResult.ADY;
         char ADBuf[] = {'0', 'x', HexTable[(res>>12)&0xF],
         HexTable[(res>>8)&0xF],HexTable[(res>>4)&0xF],HexTable[res&0xF],
@@ -302,8 +304,8 @@ int main(void)
       }
       
       static unsigned char icoY = 0;
-      icoY++;
-      if(icoY==64)icoY=0;
+      //icoY++;
+      //if(icoY==64)icoY=0;
       if(IsCHG()){
         DrawIcon(104,icoY,ICON_ID_CHARGE);
       }else if(IsPGOOD()){
@@ -317,14 +319,14 @@ int main(void)
         // 4.2*10/13.6/3.28*4096 = 3875
         // 3.3*10/13.6/3.28*4096 = 3030
         u32 res = ADCResult.ADBat;
-        if(res > 3875){
-          res = 845;
+        if(res > 3835){
+          res = 800;
         }else if(res < 3030){
           res = 0;
         }else{
           res -= 3030;
         }
-        res = 15*res/845;
+        res = 16*res/800;
         res += 106;
         SetColor(BLACK);
         SetLineThickness(NORMAL_LINE);
@@ -332,7 +334,7 @@ int main(void)
       }
       
       WaitAndSendUsbData(tBuf,64,1);
-      ToggleLED();
+      //ToggleLED();
     }
   }
 }
@@ -481,7 +483,7 @@ void InitialIO(void)
   
   GSel1_Low();
   GSel2_Low();
-  LED_ON();
+  LED_OFF();
   MMA_WAKEUP();
 #endif
 }
