@@ -2664,6 +2664,9 @@
       <name>$PROJ_DIR$\inc\HardwareProfile.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\inc\Icon.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\inc\SSD1303.h</name>
     </file>
     <file>
@@ -2710,6 +2713,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\font.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\Icon.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\src\main.c</name>
