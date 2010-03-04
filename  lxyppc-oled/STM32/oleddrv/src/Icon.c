@@ -26,7 +26,7 @@ typedef struct _Icon
 
 static const unsigned char ICON_Charge_data[] = {
   /* Width */ 21,
-  /* Height*/ 16,
+  /* Height*/ 10,
   /* Image data */
   255,1,253,253,253,253,237,109,37,129,201,237,237,253,253,253,253,1,255,72,120
   ,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0,0,
@@ -34,7 +34,7 @@ static const unsigned char ICON_Charge_data[] = {
 
 static const unsigned char ICON_Power_data[] = {
   /* Width */ 21,
-  /* Height*/ 16,
+  /* Height*/ 10,
   /* Image data */
   255,255,255,255,207,207,207,135,3,3,3,3,183,183,255,255,255,255,255,72,120,
   3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,0,0,
@@ -42,7 +42,7 @@ static const unsigned char ICON_Power_data[] = {
 
 static const unsigned char ICON_Battary_data[] = {
   /* Width */ 21,
-  /* Height*/ 16,
+  /* Height*/ 10,
   /* Image data */
   255,1,253,253,253,253,253,253,253,253,253,253,253,253,253,253,253,1,255,72,120,
   3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,0,0,
