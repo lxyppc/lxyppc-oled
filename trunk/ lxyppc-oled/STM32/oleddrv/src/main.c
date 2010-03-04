@@ -16,6 +16,7 @@
 #include "Encoder.h"
 #include "..\..\oledLoader\Inc\Export.h"
 #include "time.h"
+#include "icon.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -270,7 +271,34 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
-      TextOut(&dev,x,y,tBuf+12,0x8);
+      TextOut(&dev,x,y,tBuf+12,5);
+      if(IsCHG()){
+        DrawIcon(104,0,ICON_ID_CHARGE);
+      }else if(IsPGOOD()){
+        DrawIcon(104,0,ICON_ID_POWER);
+      }else{
+        DrawIcon(104,0,ICON_ID_BATTARY);
+        // Battary check
+        // Full charge is 4.2V, lower power is 3.3V
+        // Vref = 3.28V
+        // 10K/13.6K
+        // 4.2*10/13.6/3.28*4096 = 3875
+        // 3.3*10/13.6/3.28*4096 = 3030
+        u32 res = ADCResult.ADBat;
+        if(res > 3875){
+          res = 845;
+        }else if(res < 3030){
+          res = 0;
+        }else{
+          res -= 3030;
+        }
+        res = 15*res/845;
+        res += 106;
+        SetColor(BLACK);
+        SetLineThickness(NORMAL_LINE);
+        Bar(res,2,121,7);
+      }
+      
       {
         u32 res = ADCResult.ADBat;
         res = res * 328 * 136 / (4096*100);
