@@ -237,6 +237,11 @@ int main(void)
       }
     }
     if(Enc_IsKeyDown()){
+      if(SSD1303_IsOn()){
+        SSD1303_TurnOff();
+      }else{
+        SSD1303_TurnOn();
+      }
       char buf[] = {minute/10+'0',minute%10+'0',0};
       TextOut(&dev,80,40,buf,0xff);
     }

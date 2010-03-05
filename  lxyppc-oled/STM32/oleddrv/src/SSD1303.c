@@ -29,11 +29,15 @@
 static  u8  _SSD1303_Buffer[SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER 
 + SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END] = {0};
 static  u8  pageIndex = 0;
+static  u8  iS_SSD_On = 0;
+static  u8  pre_on = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void  WriteCommand(unsigned char command);
 void  WriteData(unsigned char data);
 void  OnPageTransferDone(void);
+unsigned long SSD1303_OFF(void);
+unsigned long SSD1303_ON(void);
 
 /*******************************************************************************
 * Function Name  : WriteCommand
@@ -127,12 +131,105 @@ void SSD1303_Init(void)
   // Set Common output scan direction
   WriteCommand(0xc8);/* Set COM scan direction */
   
-  // Set Charge pump
-  WriteCommand(0x8D); /* Set Charge pump */
-  WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
+  // For SSD1306 Set the address mode
+  WriteCommand(0x20);/* Set address mode */
+  WriteCommand(0x00);/* Set address mode horizontal */
   
-  // Turn on the display
-  WriteCommand(0xaf);
+  // Set the page start address
+  WriteCommand(0xb0);
+  WriteCommand(0x00);
+  WriteCommand(0x10);
+  
+  /* Turn on the controller */
+  pre_on = SSD1303_ON();
+//  // Set Charge pump
+//  WriteCommand(0x8D); /* Set Charge pump */
+//  WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
+//  
+//  // Turn on the display
+//  WriteCommand(0xaf);
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_TurnOff
+* Description    : Turn off the SSD1303 controller
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_TurnOff(void)
+{
+  pre_on = 0;
+  return iS_SSD_On;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_TurnOn
+* Description    : Turn off the SSD1303 controller
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_TurnOn(void)
+{
+  pre_on = 1;
+  return iS_SSD_On;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_OFF
+* Description    : Turn off the SSD1303 controller
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_OFF(void)
+{
+  if(iS_SSD_On){
+    // Turn off the display
+    WriteCommand(0xae);
+    
+    // Set Charge pump
+    WriteCommand(0x8D); /* Set Charge pump */
+    WriteCommand(0x10); /* 0x14=ON, 0x10=Off */
+    iS_SSD_On = 0;
+  }
+  return iS_SSD_On;
+}
+
+
+/*******************************************************************************
+* Function Name  : SSD1303_ON
+* Description    : Turn on the SSD1303 controller
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_ON(void)
+{
+  if(!iS_SSD_On){
+    // Set Charge pump
+    WriteCommand(0x8D); /* Set Charge pump */
+    WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
+    
+    // Turn on the display
+    WriteCommand(0xaf);
+    iS_SSD_On = 1;
+  }
+  return iS_SSD_On;
+}
+
+
+/*******************************************************************************
+* Function Name  : SSD1303_IsOn
+* Description    : Check whether the SSD1303 is on or off
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned long SSD1303_IsOn(void)
+{
+  return iS_SSD_On;
 }
 
 /*******************************************************************************
@@ -148,18 +245,19 @@ void  OnPageTransferDone(void)
     pageIndex = 0;
     return;
   }
-  WriteCommand(0xb0 + pageIndex);
-  if(pageIndex == 0){
-    WriteCommand(0x00);
-    WriteCommand(0x10);
-  }
+//  WriteCommand(0xb0 + pageIndex);
+//  if(pageIndex == 0){
+//    WriteCommand(0x00);
+//    WriteCommand(0x10);
+//  }
   SSD_A0_High();
   DMA_SSD_1303->CCR &= ((u32)0xFFFFFFFE);
-  DMA_SSD_1303->CNDTR = SSD1303_COLUMN_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
-  DMA_SSD_1303->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex);
+  DMA_SSD_1303->CNDTR = SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
+  DMA_SSD_1303->CMAR = (u32)(SSD1303_Buffer);//+SSD1303_COLUMN_NUMBER*pageIndex);
   //DMA_Cmd(DMA_SSD_1303, ENABLE);
   DMA_SSD_1303->CCR |= ((u32)0x00000001);
-  pageIndex++;
+//  pageIndex++;
+  pageIndex = SSD1303_PAGE_NUMBER;
 }
 
 /*******************************************************************************
@@ -187,7 +285,18 @@ void DMA_Handler_SSD_1303(void) //DMA1_Channel5_IRQHandler(void)
 void StartPageTransfer(void)
 {
   pageIndex = 0;
-  OnPageTransferDone();
+  if(pre_on){
+    if(iS_SSD_On == 0){
+      pre_on = SSD1303_ON();
+    }
+  }else{
+    if(iS_SSD_On){
+      pre_on = SSD1303_OFF();
+    }
+  }
+  if(iS_SSD_On){
+    OnPageTransferDone();
+  }
 }
 
 /*******************************************************************************
