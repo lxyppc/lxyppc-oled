@@ -323,24 +323,41 @@ unsigned long SSD1303_DrawBlock(
   unsigned char* pStart = SSD1303_Buffer + (y/8)*SSD1303_COLUMN_NUMBER + x;
   unsigned char offset1 = y%8;
   unsigned char offset2 = (cy+y)%8;
-  unsigned char mask1 = (1<<offset1)-1;
-  unsigned char mask2 = ~((1<<offset2)-1);
-  cy = (cy+offset1)/8;
-  for(Pos_t i=0;i<cx;i++){
-    Pos_t j = 0;
-    unsigned short tmp = *pStart & mask1;
-    for(;j<cy;j++){
-      tmp |= (((unsigned short)data[j*cx])<<offset1);
-      *(pStart + j*SSD1303_COLUMN_NUMBER) = tmp;
-      tmp>>=8;
+  if(data){
+    unsigned char mask1 = (1<<offset1)-1;
+    unsigned char mask2 = ~((1<<offset2)-1);
+    cy = (cy+offset1)/8;
+    for(Pos_t i=0;i<cx;i++){
+      Pos_t j = 0;
+      unsigned short tmp = *pStart & mask1;
+      for(;j<cy;j++){
+        tmp |= (((unsigned short)data[j*cx])<<offset1);
+        *(pStart + j*SSD1303_COLUMN_NUMBER) = tmp;
+        tmp>>=8;
+      }
+      if(offset2){
+        tmp |= ((((unsigned short)data[j*cx])<<offset1) & (~mask2))
+            | *(pStart + j*SSD1303_COLUMN_NUMBER) & mask2;
+        *(pStart + j*SSD1303_COLUMN_NUMBER) = tmp;
+      }
+      data++;
+      pStart++;
     }
-    if(offset2){
-      tmp |= ((((unsigned short)data[j*cx])<<offset1) & (~mask2))
-          | *(pStart + j*SSD1303_COLUMN_NUMBER) & mask2;
-      *(pStart + j*SSD1303_COLUMN_NUMBER) = tmp;
+  }else{
+    unsigned char mask1 = ~((1<<offset1)-1);
+    unsigned char mask2 = ((1<<offset2)-1);
+    cy = (cy+offset1)/8;
+    for(Pos_t i=0;i<cx;i++){
+      Pos_t j = 1;
+      *pStart ^= mask1;
+      for(;j<cy;j++){
+        *(pStart + j*SSD1303_COLUMN_NUMBER) ^= 0xFF;
+      }
+      if(offset2){
+        *(pStart + j*SSD1303_COLUMN_NUMBER) ^= mask2;
+      }
+      pStart++;
     }
-    data++;
-    pStart++;
   }
   
   

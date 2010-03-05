@@ -2652,6 +2652,9 @@
       <name>$PROJ_DIR$\inc\bsp.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\inc\DrawText.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\inc\Encoder.h</name>
     </file>
     <file>
@@ -2696,6 +2699,9 @@
   </group>
   <group>
     <name>USBLib</name>
+    <file>
+      <name>$PROJ_DIR$\..\oledLoader\inc\export.h</name>
+    </file>
   </group>
   <group>
     <name>User</name>
