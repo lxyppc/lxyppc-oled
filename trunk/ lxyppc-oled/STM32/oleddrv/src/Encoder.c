@@ -125,7 +125,7 @@ s16   Enc_GetCount(void)
     dAngle += ENCODER_TIM_PERIOD;
   }
   lastCount = curCount;
-  {
+  if(0){
     static u8 lastDown = 0;
     if(GPIOA->IDR & GPIO_Pin_0){
       if(lastDown>=2){

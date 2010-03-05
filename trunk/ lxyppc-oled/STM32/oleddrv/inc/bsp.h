@@ -76,4 +76,6 @@ D1/Data 3  4  D0/Clk
 #define   DMA_Handler_SSD_1303    DMA1_Channel5_IRQHandler
 #define   DMA_ADC         DMA1_Channel1
 
+#define   Is_Enc_Key_Down()    (!(GPIOA->IDR & GPIO_Pin_0))
+
 #endif

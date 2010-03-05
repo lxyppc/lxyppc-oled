@@ -31,6 +31,8 @@ static  u8  _SSD1303_Buffer[SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER
 static  u8  pageIndex = 0;
 static  u8  iS_SSD_On = 0;
 static  u8  pre_on = 0;
+static  u8  curContrast = 0xCC;
+static  u8  lastContrast = 0xCC;
 
 /* Private function prototypes -----------------------------------------------*/
 void  WriteCommand(unsigned char command);
@@ -93,6 +95,7 @@ void SSD1303_Init(void)
   // Contrast Control Register
   WriteCommand(0x81); /* Set Contrast Control */
   WriteCommand(0xCf); /* 0 ~ 255 0x1f*/
+  curContrast = lastContrast = 0xCF;
   // Re-map
   WriteCommand(0xA1); /* [A0]:column address 0 is map 
   to SEG0 , [A1]: columnaddress 131 is map to SEG0*/ 
@@ -174,6 +177,31 @@ unsigned long SSD1303_TurnOn(void)
 {
   pre_on = 1;
   return iS_SSD_On;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_SetContrast
+* Description    : Set the SSD1303 contrast
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned char SSD1303_SetContrast(unsigned char contrast)
+{
+  curContrast = lastContrast;
+  return lastContrast;
+}
+
+/*******************************************************************************
+* Function Name  : SSD1303_GetContrast
+* Description    : Get the SSD1303 contrast
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+unsigned char SSD1303_GetContrast(unsigned char contrast)
+{
+  return lastContrast;
 }
 
 /*******************************************************************************
@@ -294,6 +322,12 @@ void StartPageTransfer(void)
       pre_on = SSD1303_OFF();
     }
   }
+  if( curContrast != lastContrast ){
+    lastContrast = curContrast;
+    WriteCommand(0x81); /* Set Contrast Control */
+    WriteCommand(lastContrast); /* 0 ~ 255 0x1f*/
+  }
+  
   if(iS_SSD_On){
     OnPageTransferDone();
   }

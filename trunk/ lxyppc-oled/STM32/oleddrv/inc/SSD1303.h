@@ -9,5 +9,7 @@ unsigned long SSD1303_DrawBlock(Pos_t x, Pos_t y, Pos_t cx, Pos_t cy, const unsi
 unsigned long SSD1303_IsOn(void);
 unsigned long SSD1303_TurnOff(void);
 unsigned long SSD1303_TurnOn(void);
+unsigned char SSD1303_SetContrast(unsigned char contrast);
+unsigned char SSD1303_GetContrast(unsigned char contrast);
 
 #endif

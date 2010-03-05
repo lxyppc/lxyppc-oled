@@ -17,6 +17,7 @@
 #include "..\..\oledLoader\Inc\Export.h"
 #include "time.h"
 #include "icon.h"
+#include "menu.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -192,6 +193,16 @@ int main(void)
   //GraphTest();
   Device dev;
   InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
+  
+  //SpecTextOut(&dev,1,10,song_6_fontBuffer,7);
+  //while(1);
+  InitialMenu();
+  while(1){
+    static  Msg msg;
+    if(GetMessage(&msg)){
+      MenuProcess(&msg);
+    }
+  }
   
   Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
@@ -522,19 +533,54 @@ void InitialIO(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#define   SCROLL_THRESHOLD      4
 void SysTickHandler(void)
 {
+  Msg msg;
+  static s16 lastEncCnt = 0;
   encCount = Enc_GetCount();
-  if(encCount>0){
-    minute++;
-    if(minute>=60)minute = 0;
-  }else if(encCount<0){
-    if(minute){
-      minute--;
-    }else{
-      minute = 59;
-    }
+  if((lastEncCnt ^ encCount) & 0x8000 ){
+    lastEncCnt = encCount;
   }
+  lastEncCnt += encCount;
+  if(lastEncCnt>SCROLL_THRESHOLD){
+    msg.param = (void*)((s32)encCount);
+    msg.message = MSG_SCROLL;
+    PostMessage(&msg);
+    lastEncCnt -= SCROLL_THRESHOLD;
+  }else if(lastEncCnt<-SCROLL_THRESHOLD){
+    msg.param = (void*)((s32)encCount);
+    msg.message = MSG_SCROLL;
+    PostMessage(&msg);
+    lastEncCnt += SCROLL_THRESHOLD;
+  }
+  static u32 keyDown = 0;
+  if(Is_Enc_Key_Down()){
+    if(keyDown){
+      msg.param = 0;
+      msg.message = MSG_KEY_DOWN;
+      PostMessage(&msg);
+    }
+    keyDown++;
+  }else{
+    if(keyDown > 2){
+      msg.param = 0;
+      msg.message = MSG_KEY_UP;
+      PostMessage(&msg);
+    }
+    keyDown = 0;
+  }
+  
+//  if(encCount>0){
+//    minute++;
+//    if(minute>=60)minute = 0;
+//  }else if(encCount<0){
+//    if(minute){
+//      minute--;
+//    }else{
+//      minute = 59;
+//    }
+//  }
   StartPageTransfer();
   
   ADC_SoftwareStartConvCmd(ADC1, ENABLE);
@@ -794,20 +840,14 @@ void RTC_IRQHandler(void)
     RTC_ClearITPendingBit(RTC_IT_SEC);
 
     /* Toggle GPIO_LED pin 6 each 1s */
-    //GPIO_WriteBit(GPIOF, GPIO_Pin_6, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOF, GPIO_Pin_6)));
-
-    /* Enable time update */
-    TimeDisplay = 1;
+    
+    Msg msg;
+    msg.param = (void*)RTC_GetCounter();
+    msg.message = MSG_SECOND;
+    PostMessage(&msg);
 
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
-    /* Reset RTC Counter when Time is 23:59:59 */
-    if (RTC_GetCounter() == 0x00015180)
-    {
-      RTC_SetCounter(0x0);
-      /* Wait until last write operation on RTC registers has finished */
-      RTC_WaitForLastTask();
-    }
   }
 }
 
