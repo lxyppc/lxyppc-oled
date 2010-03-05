@@ -10,6 +10,6 @@ typedef struct _FontData
 
 const FontData* GetFont_fixedsys(unsigned char ch);
 
-extern const FontData fontBuffer_fixedsys[256];
+extern const FontData fontBuffer_fixedsys[128];
 
 #endif

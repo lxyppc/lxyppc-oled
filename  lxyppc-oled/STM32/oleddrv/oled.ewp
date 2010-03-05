@@ -2670,6 +2670,9 @@
       <name>$PROJ_DIR$\inc\Icon.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\inc\menu.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\inc\SSD1303.h</name>
     </file>
     <file>
@@ -2725,6 +2728,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\main.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\menu.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\src\SSD1303.c</name>
