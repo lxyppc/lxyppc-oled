@@ -63,65 +63,20 @@ void RTC_Configuration(void);
 void Initial_Tim2(void);
 void InitialIO(void);
 void InitialADC(void);
+void InitialSystem();
 
 /* Private functions ---------------------------------------------------------*/
-
-/*******************************************************************************
-* Function Name  : main
-* Description    : Main program
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-int main(void)
+void  GraphTest(void)
 {
   SHORT counter;
-#ifdef DEBUG
-  debug();
-#endif
-  /* System Clocks Configuration */
-  //RCC_Configuration();
-  GPIO_AFIODeInit();
-  GPIO_DeInit(GPIOB);
-  /* The bootloader has already initialize the GPIOA*/
-  //GPIO_DeInit(GPIOA);
-  GPIO_DeInit(GPIOD);
-  
-  /* NVIC configuration */
-  NVIC_Configuration();
-  
-  InitialIO();
-  InitialADC();
-  
-  RCC_DeInit();
-  CheckConnection();
-  
-  /* Initialize the SSD1303 related IO */
-  SSD1303_IO_Configuration();
-  
-  /* Initialize the SSD1303 */
-  SSD1303_Init();
-  
-  /* Initialize the SSD1303 controller,
-     which is simulated by STM32 DMA and systick*/
-  SSD1303_Controller_Init();
-  
-  /* Initialize the RTC peripheral */
-  RTC_Configuration();
-  
   Device dev;
   InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
-  
-  InitGraph();
-  
-  Enc_Init();
-  
   u8  buf[8];
   for(u32 i=0;i<8;i++){
     buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
   }
   
-  while(0){
+  while(1){
     SetColor(WHITE);
     for(counter=0; counter<GetMaxX(); counter+=20){
       DelayMs(500);
@@ -219,6 +174,25 @@ int main(void)
     ClearDevice();
     break;
   }
+}
+
+/*******************************************************************************
+* Function Name  : main
+* Description    : Main program
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+int main(void)
+{
+#ifdef DEBUG
+  debug();
+#endif
+  InitialSystem();
+  //GraphTest();
+  Device dev;
+  InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
+  
   Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
   u32 lastM = minute;
@@ -275,11 +249,11 @@ int main(void)
         i++;
         tBuf[i] = *p++;
       }
-      TextOut(&dev,x,y,tBuf+12,8);
+      TextOut_HighLight(&dev,x,y,tBuf+12,8);
       TextOut(&dev,x,y+16,tBuf+5,6);
       TextOut(&dev,x,y+32,tBuf+21,4);
       TextOut(&dev,x+32,y+32,tBuf+20,1);
-      TextOut(&dev,x+40,y+32,tBuf+1,3);
+      TextOut_HighLight(&dev,x+40,y+32,tBuf+1,3);
       if(0){
         u32 res = ADCResult.ADBat;
         res = res * 328 * 136 / (4096*100);
@@ -342,6 +316,54 @@ int main(void)
       //ToggleLED();
     }
   }
+}
+
+/*******************************************************************************
+* Function Name  : InitialSystem
+* Description    : Initialize the system
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void InitialSystem()
+{
+  GPIO_AFIODeInit();
+  GPIO_DeInit(GPIOB);
+  /* The bootloader has already initialize the GPIOA*/
+  //GPIO_DeInit(GPIOA);
+  GPIO_DeInit(GPIOD);
+  
+  /* NVIC configuration */
+  NVIC_Configuration();
+  
+  /* Initialize GPIO */
+  InitialIO();
+  
+  /* Initialize ADC */
+  InitialADC();
+  
+  /* Initializer system colck */
+  RCC_DeInit();
+  CheckConnection();
+  
+  /* Initialize the SSD1303 related IO */
+  SSD1303_IO_Configuration();
+  
+  /* Initialize the SSD1303 */
+  SSD1303_Init();
+  
+  /* Initialize the SSD1303 controller,
+     which is simulated by STM32 DMA and systick*/
+  SSD1303_Controller_Init();
+  
+  /* Initialize the RTC peripheral */
+  RTC_Configuration();
+  
+  /* Initial graph lib*/
+  InitGraph();
+  
+  /* Initial encoder interface*/
+  Enc_Init();
 }
 
 /*******************************************************************************

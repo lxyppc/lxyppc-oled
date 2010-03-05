@@ -35,6 +35,26 @@ typedef  struct  _Device
 
 void  InitialDevice(Device* pDev, const DeviceProp* pDevProp, const FontData* pFont);
 
+unsigned long  TextOut_HighLight(
+  Device* pDev,
+  Pos_t x,
+  Pos_t y,
+  const char* text,
+  Size_t len);
+
+unsigned long SpecTextOut_HighLight(
+  Device* pDev,
+  Pos_t x,
+  Pos_t y,
+  const FontData* textDot,
+  Size_t len);
+
+unsigned long HightLightArea(
+  Pos_t x,
+  Pos_t y,
+  Pos_t cx,
+  Pos_t cy);
+
 unsigned long  TextOut(
   Device* pDev,
   Pos_t x,

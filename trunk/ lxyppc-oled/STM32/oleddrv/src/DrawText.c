@@ -41,6 +41,72 @@ Pos_t  TextOut(Device* pDev, Pos_t x, Pos_t y, const char* text, Size_t len)
 }
 
 /*******************************************************************************
+* Function Name  : HightLightArea
+* Description    : Hight Light the specify Area
+* Input          : Device*          device
+*                  Pos_t            x location
+*                  Pos_t            y location
+                   Pos_t            width
+*                  Pos_t            length
+* Output         : None
+* Return         : End x position for the last character
+*******************************************************************************/
+unsigned long HightLightArea(
+  Pos_t x,
+  Pos_t y,
+  Pos_t cx,
+  Pos_t cy)
+{
+  return SSD1303_DrawBlock(x,y,cx,cy,0);
+}
+
+/*******************************************************************************
+* Function Name  : TextOut_HighLight
+* Description    : Output a text at specify position, then hight them
+* Input          : Device*          device
+*                  Pos_t            x location
+*                  Pos_t            y location
+*                  char*            text
+*                  Size_t           text length
+* Output         : None
+* Return         : End x position for the last character
+*******************************************************************************/
+unsigned long  TextOut_HighLight(
+  Device* pDev,
+  Pos_t x,
+  Pos_t y,
+  const char* text,
+  Size_t len)
+{
+  Pos_t res = TextOut(pDev, x, y, text, len);
+  SSD1303_DrawBlock(x,y,res-x,pDev->font->height,0);
+  return res;
+}
+
+/*******************************************************************************
+* Function Name  : SpecTextOut_HighLight
+* Description    : Output a specify text at specify position then high light them
+* Input          : Device*          device
+*                  Pos_t            x location
+*                  Pos_t            y location
+*                  const FontData*  text dotmatrix data
+*                  Size_t           text length
+* Output         : None
+* Return         : End x position for the last character
+*******************************************************************************/
+unsigned long SpecTextOut_HighLight(
+  Device* pDev,
+  Pos_t x,
+  Pos_t y,
+  const FontData* textDot,
+  Size_t len)
+{
+  Pos_t res = SpecTextOut(pDev, x, y, textDot, len);
+  SSD1303_DrawBlock(x,y,res-x,textDot->height,0);
+  return res;
+}
+
+/*******************************************************************************
 * Function Name  : SpecTextOut
 * Description    : Output a specify text at specify position
 * Input          : Device*          device

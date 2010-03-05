@@ -18,7 +18,7 @@
 
 const FontData fontBuffer_fixedsys[256] = {
     /* Char  Code  width, height,  {data}  */
-    {/*   0x0000*/       0,     0, {
+    {/*   0x0000*/       8,     16, {
                    0x00,
                    }},
     {/*   0x0001*/       8,    16, {
