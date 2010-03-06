@@ -816,6 +816,13 @@ void DMA2_Channel4_5_IRQHandler(void)
 
 void  FaultExceptionHandler(void)
 {
+  FLASH_Unlock();
+  if(FLASH_WaitForLastOperation(100000)!=FLASH_TIMEOUT){
+    FLASH_ClearFlag(FLASH_FLAG_EOP|FLASH_FLAG_PGERR|FLASH_FLAG_WRPRTERR);
+  }
+  FLASH_ErasePage(AppBaseAddr);
+  FLASH_Lock();
+  NVIC_GenerateSystemReset();
   while(1);
 }
 
