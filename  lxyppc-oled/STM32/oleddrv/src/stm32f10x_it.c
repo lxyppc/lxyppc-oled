@@ -269,9 +269,9 @@ void EXTI4_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void DMA1_Channel1_IRQHandler(void)
-{
-}
+//void DMA1_Channel1_IRQHandler(void)
+//{
+//}
 
 /*******************************************************************************
 * Function Name  : DMA1_Channel2_IRQHandler

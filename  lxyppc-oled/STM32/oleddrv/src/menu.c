@@ -17,101 +17,22 @@
 #include "ClockUI.h"
 
 /* Private typedef -----------------------------------------------------------*/
-typedef   const char*    LPCSTR;
-
 /* Private define ------------------------------------------------------------*/
-#define   RES_ROOT              0
-#define   RES_MEASURE           1
-#define   RES_TEST              2
-#define   RES_SETTING           3
-#define   RES_ABOUT             4
-
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static  const   MenuItem*    curMenuItem;
 static  u8      preQuit = 0;
 static  Device  menuDev;
-static  LPCSTR MenuText_En[] = 
-{
-  "Quit",       /* RES 0 */
-  "Measure",    /* RES_MEASURE */
-  "Test",       /* RES 2 */
-  "Setting",    /* RES 3 */
-  "About",      /* RES 4 */
-};
+extern  LPCSTR MenuText_En[];
+extern  LPCSTR MenuText_Cn[];
 static  LPCSTR* curLang = MenuText_En;
-
-extern  const MenuItem    measureMenu[];
-extern  const MenuItem    mainMenu[];
-unsigned long OnMenuAbout(void* p, Msg* msg);
-
-const MenuItem    measureMenu[] = {
-  /*Parent          child/pfn           index      cnt        resource        type*/
-  {   mainMenu,     measureMenu,         0,        4,        RES_MEASURE,    MT_SUB},
-  {   mainMenu,     (void*)OnMenuAbout,  1,        4,        RES_TEST,       MT_NULL},
-  {   mainMenu,     (void*)OnMenuAbout,  2,        4,        RES_SETTING,    MT_NULL},
-  {   mainMenu,     (void*)OnMenuAbout,  3,        4,        RES_ABOUT,      MT_NULL},
-};
-
-
-unsigned long OnMenuAbout(void* p, Msg* msg)
-{
-  if(msg->message == MSG_INIT){
-    SetColor(BLACK);
-    ClearDevice();
-    TextOut(&menuDev, 0, 0,curLang[RES_ABOUT], 0xFF);
-    return 0;
-  }else if(msg->message == MSG_KEY_UP){
-    return 1;
-  }
-  return 0;
-}
-
-unsigned long OnMenuTest(void* p, Msg* msg)
-{
-  if(msg->message == MSG_INIT){
-    SetColor(BLACK);
-    ClearDevice();
-    TextOut(&menuDev, 0, 0,curLang[RES_TEST], 0xFF);
-    return 0;
-  }else if(msg->message == MSG_KEY_UP){
-    return 1;
-  }else if(msg->message == MSG_SCROLL){
-    s32 res = (s32)msg->param;
-    char buf[3] = "+";
-    if(res<0){
-      res = -res;
-      buf[0] = '-';
-    }
-    static Pos_t x = 0;
-    static Pos_t y = 13;
-    buf[1] = res%10+'0';
-    buf[2] = ',';
-    x = TextOut(&menuDev, x, y, buf, 3);
-    if(x > 110){
-      x = 0;
-      y+=13;
-    }
-    if( y > 64-13){
-      y = 13;
-    }
-    
-  }
-  return 0;
-}
-
-
-
-const MenuItem    mainMenu[] = {
-  /*Parent    child/pfn           index      cnt        resource        type*/
-  {   0,     measureMenu,         0,        4,        RES_MEASURE,    MT_SUB},
-  {   0,     (void*)OnMenuTest,   1,        4,        RES_TEST,       MT_NULL},
-  {   0,     (void*)OnMenuAbout,  2,        4,        RES_SETTING,    MT_NULL},
-  {   0,     (void*)OnMenuAbout,  3,        4,        RES_ABOUT,      MT_NULL},
-};
+extern  const MenuItem  MainMenu[];
+extern  const MenuItem  RootMenu;
+static  MenuFunc_t menuProc = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void  UpdateMenu(void);
+MenuResult RootApp(void* param, Msg* msg);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -125,58 +46,46 @@ void  UpdateMenu(void);
 MenuFunc_t    InitialMenu()
 {
   InitialDevice(&menuDev,&SSD1303_Prop,fontBuffer_fixedsys);
-  curMenuItem = mainMenu;
-  UpdateMenu();
-  return 0;
-}
-
-unsigned long RootApp(void* param, Msg* msg)
-{
-  if(msg->message == MSG_INIT){
-    SetColor(BLACK);
-    ClearDevice();
-    TextOut(&menuDev, 0, 0,curLang[RES_MEASURE], 0xFF);
-  }else if(msg->message == MSG_KEY_UP){
-    curMenuItem = mainMenu;
-    return 1;
-  }else if(msg->message == MSG_SECOND){
-    static u32 i = 0;
-    char buf[] = {i%10+'0', 0};
-    TextOut(&menuDev, 24, 24,buf, 0xFF);
-    i++;
-  }
-  return 0;
+  curMenuItem = MainMenu;
+  menuProc = RootApp;
+  Msg msg = {.param = 0, .message = MSG_INIT};
+  RootApp(0,&msg);
+  return MR_Finish;
 }
 
 unsigned long  MenuProcess(Msg* msg)
 {
-  static MenuFunc_t proc = 0;
-  if(proc){
-    if(proc((void*)curMenuItem,msg)){
-      proc = 0;
+  if(menuProc){
+    if(menuProc((void*)curMenuItem,msg) == MR_Finish){
+      menuProc = 0;
       UpdateMenu();
     }
     return 0;
   }
+  unsigned char menuUpdate = 0;
   switch(msg->message){
   case MSG_SCROLL:
     if((signed long)msg->param > 0){
       // Scroll down
       if(preQuit){
         preQuit = 0;
+        menuUpdate = 1;
       }else{
         unsigned char idx = curMenuItem->index+1;
         if(idx >= curMenuItem->cnt){
-          curMenuItem = curMenuItem - curMenuItem->index;
+          //curMenuItem = curMenuItem - curMenuItem->index;
         }else{
           curMenuItem++;
+          menuUpdate = 1;
         }
       }
     }else{
       // Scroll up
       if(curMenuItem->index){
         curMenuItem--;
+        menuUpdate = 1;
       }else{
+        menuUpdate = !preQuit;
         preQuit = 1;
       }
     }
@@ -185,25 +94,29 @@ unsigned long  MenuProcess(Msg* msg)
     if(preQuit){
       preQuit = 0;
       curMenuItem = curMenuItem->parent;
+      menuUpdate = 1;
       if(!curMenuItem){
-        proc = RootApp;
+        menuProc = RootMenu.pfnMenu;
       }
     }else{
       if(curMenuItem->type & MT_SUB){
         curMenuItem = curMenuItem->child;
+        menuUpdate = 1;
       }else{
-        proc = curMenuItem->pfnMenu;
+        menuProc = curMenuItem->pfnMenu;
       }
     }
     break;
   default:
-    break;
+    return 0;
   }
-  if(proc){
+  if(menuProc){
     Msg ini = { .param = 0, .message = MSG_INIT};
-    proc((void*)curMenuItem,&ini);
+    menuProc((void*)curMenuItem,&ini);
   }else{
-    UpdateMenu();
+    if(menuUpdate){
+      UpdateMenu();
+    }
   }
   return 0;
 }
@@ -214,12 +127,13 @@ unsigned long  MenuProcess(Msg* msg)
 void  UpdateMenu(void)
 {
   const char* text;
+  if(!curMenuItem)return;
   SetColor(BLACK);
   ClearDevice();
   if(curMenuItem->parent){
     text = curLang[curMenuItem->parent->res];
   }else{
-    text = curLang[RES_ROOT];
+    text = curLang[RootMenu.res];
   }
   Pos_t x;
   if(preQuit){
@@ -249,6 +163,11 @@ void  UpdateMenu(void)
   }
 }
 
+MenuResult     PopupMenu(const MenuItem* menu)
+{
+  curMenuItem = menu;
+  return MR_Finish;
+}
 
 /**
     Message realted definitions

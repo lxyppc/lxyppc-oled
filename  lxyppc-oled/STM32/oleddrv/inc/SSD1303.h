@@ -10,6 +10,6 @@ unsigned long SSD1303_IsOn(void);
 unsigned long SSD1303_TurnOff(void);
 unsigned long SSD1303_TurnOn(void);
 unsigned char SSD1303_SetContrast(unsigned char contrast);
-unsigned char SSD1303_GetContrast(unsigned char contrast);
+unsigned char SSD1303_GetContrast();
 
 #endif

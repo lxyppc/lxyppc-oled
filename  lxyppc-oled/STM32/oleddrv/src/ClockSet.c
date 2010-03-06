@@ -139,8 +139,9 @@ ErrorStatus  HSI_Config(void)
   while(RCC_GetSYSCLKSource() != 0x08)
   {
   }
-  
+#ifdef  WITH_BOOTLOADER
   DisconnectUSB();
+#endif
   return SUCCESS;
 }
 
@@ -169,7 +170,9 @@ unsigned char  SwitchToHSE(void)
     RCC_PLLCmd(DISABLE);
     HSI_Config();
   }else{
+#ifdef  WITH_BOOTLOADER
     ConnectUSB();
+#endif
   }
   return err == SUCCESS ? 1 : 0;
 }
