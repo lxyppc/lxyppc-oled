@@ -92,10 +92,15 @@ void SSD1303_Init(void)
   WriteCommand(0x10); /* Set Higher Column Address*/
   // Display Start Line
   WriteCommand(0x40); /* Set Display Start Line */
+#ifdef    DEBUG_BOARD
+  curContrast = lastContrast = 0x30;
+#else
+  curContrast = lastContrast = 0xCF;
+#endif
   // Contrast Control Register
   WriteCommand(0x81); /* Set Contrast Control */
-  WriteCommand(0xCf); /* 0 ~ 255 0x1f*/
-  curContrast = lastContrast = 0xCF;
+  WriteCommand(lastContrast); /* 0 ~ 255 0x1f*/
+  
   // Re-map
   WriteCommand(0xA1); /* [A0]:column address 0 is map 
   to SEG0 , [A1]: columnaddress 131 is map to SEG0*/ 
@@ -188,7 +193,7 @@ unsigned long SSD1303_TurnOn(void)
 *******************************************************************************/
 unsigned char SSD1303_SetContrast(unsigned char contrast)
 {
-  curContrast = lastContrast;
+  curContrast = contrast;
   return lastContrast;
 }
 
@@ -199,7 +204,7 @@ unsigned char SSD1303_SetContrast(unsigned char contrast)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-unsigned char SSD1303_GetContrast(unsigned char contrast)
+unsigned char SSD1303_GetContrast()
 {
   return lastContrast;
 }
@@ -236,10 +241,12 @@ unsigned long SSD1303_OFF(void)
 unsigned long SSD1303_ON(void)
 {
   if(!iS_SSD_On){
+#ifdef    DEBUG_BOARD
+#else
     // Set Charge pump
     WriteCommand(0x8D); /* Set Charge pump */
     WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
-    
+#endif
     // Turn on the display
     WriteCommand(0xaf);
     iS_SSD_On = 1;
@@ -273,11 +280,19 @@ void  OnPageTransferDone(void)
     pageIndex = 0;
     return;
   }
-//  WriteCommand(0xb0 + pageIndex);
-//  if(pageIndex == 0){
-//    WriteCommand(0x00);
-//    WriteCommand(0x10);
-//  }
+#ifdef    DEBUG_BOARD
+  WriteCommand(0xb0 + pageIndex);
+  if(pageIndex == 0){
+    WriteCommand(0x00);
+    WriteCommand(0x10);
+  }
+  SSD_A0_High();
+  DMA1_Channel5->CCR &= ((u32)0xFFFFFFFE);
+  DMA1_Channel5->CNDTR = SSD1303_COLUMN_NUMBER+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
+  DMA1_Channel5->CMAR = (u32)(SSD1303_Buffer+SSD1303_COLUMN_NUMBER*pageIndex - SSD1303_COLUMN_MARGIN_START);
+  DMA_SSD_1303->CCR |= ((u32)0x00000001);
+  pageIndex++;
+#else
   SSD_A0_High();
   DMA_SSD_1303->CCR &= ((u32)0xFFFFFFFE);
   DMA_SSD_1303->CNDTR = SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER;//+SSD1303_COLUMN_MARGIN_START + SSD1303_COLUMN_MARGIN_END;
@@ -286,6 +301,7 @@ void  OnPageTransferDone(void)
   DMA_SSD_1303->CCR |= ((u32)0x00000001);
 //  pageIndex++;
   pageIndex = SSD1303_PAGE_NUMBER;
+#endif
 }
 
 /*******************************************************************************

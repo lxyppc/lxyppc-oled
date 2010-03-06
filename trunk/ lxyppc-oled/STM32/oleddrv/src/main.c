@@ -189,6 +189,14 @@ int main(void)
 #ifdef DEBUG
   debug();
 #endif
+  {
+    /*
+      Todo: the app will crash if remove the follow codes
+    */
+    time_t now = 0;
+    struct tm* curTm = localtime(&now);
+  }
+  
   InitialSystem();
   //GraphTest();
   Device dev;
@@ -208,20 +216,22 @@ int main(void)
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
   u32 lastM = minute;
   while(1){
-    if(minute != lastM){
-      lastM = minute;
-      char buf[] = {minute/10+'0',minute%10+'0',0};
-      TextOut(&dev,80,20,buf,0xff);
-      if(encCount<0){
-        encCount = -encCount;
-        char buf[] = {'-',encCount/10+'0',encCount%10+'0',0};
-        TextOut(&dev,100,20,buf,0xff);
-      }else{
-        char buf[] = {'+',encCount/10+'0',encCount%10+'0',0};
-        TextOut(&dev,100,20,buf,0xff);
-      }
-    }
-    if(Enc_IsKeyDown()){
+    static  Msg msg;
+    if(!GetMessage(&msg))continue;
+//    if(minute != lastM){
+//      lastM = minute;
+//      char buf[] = {minute/10+'0',minute%10+'0',0};
+//      TextOut(&dev,80,20,buf,0xff);
+//      if(encCount<0){
+//        encCount = -encCount;
+//        char buf[] = {'-',encCount/10+'0',encCount%10+'0',0};
+//        TextOut(&dev,100,20,buf,0xff);
+//      }else{
+//        char buf[] = {'+',encCount/10+'0',encCount%10+'0',0};
+//        TextOut(&dev,100,20,buf,0xff);
+//      }
+//    }
+    if(msg.message == MSG_KEY_UP){
       if(SSD1303_IsOn()){
         SSD1303_TurnOff();
       }else{
@@ -237,7 +247,8 @@ int main(void)
         RTC_WaitForLastTask();
       }
     }
-    if(TimeDisplay){
+    if(msg.message == MSG_SECOND){
+    //if(TimeDisplay){
       CheckConnection();
       vu16 ccr1 = TIM3->CCR1;
       Pos_t x = 64;
@@ -427,10 +438,10 @@ void InitialADC(void)
   ADC_Init(ADC1, &ADC_InitStructure);
   ADC_Init(ADC2, &ADC_InitStructure);
   
-  ADC_RegularChannelConfig(ADC1, AD_CH_BAT, 1, ADC_SampleTime_55Cycles5);
-  ADC_RegularChannelConfig(ADC2, AD_CH_X, 1, ADC_SampleTime_55Cycles5);
-  ADC_RegularChannelConfig(ADC1, AD_CH_Y, 2, ADC_SampleTime_55Cycles5);
-  ADC_RegularChannelConfig(ADC2, AD_CH_Z, 2, ADC_SampleTime_55Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_BAT, 1, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_X, 1, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_Y, 2, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_Z, 2, ADC_SampleTime_13Cycles5);
   
   /* Initialize the ADC DMA channel */
   ADC_DMACmd(ADC1,ENABLE);
@@ -447,12 +458,15 @@ void InitialADC(void)
   DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;//DMA_Priority_Low DMA_Priority_VeryHigh;
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
   DMA_Init(DMA_ADC, &DMA_InitStructure);
-//  NVIC_InitStructure.NVIC_IRQChannel = GetDMAIrqChannel(AD_DMA_Channel);
-//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//  NVIC_Init(&NVIC_InitStructure);
-//  DMA_ITConfig(AD_DMA_Channel, DMA_IT_TC, ENABLE);
+  
+  NVIC_InitTypeDef  NVIC_InitStructure;
+  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQChannel;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  DMA_ITConfig(DMA_ADC, DMA_IT_TC, ENABLE);
+  
   DMA_Cmd(DMA_ADC, ENABLE);
   
   
@@ -480,6 +494,27 @@ void InitialADC(void)
 }
 
 /*******************************************************************************
+* Function Name  : DMA1_Channel1_IRQHandler
+* Description    : This function handles DMA1 Channel 1 interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DMA1_Channel1_IRQHandler(void)
+{
+  if(DMA_GetITStatus(DMA1_IT_TC1)){
+    DMA_ClearITPendingBit(DMA1_IT_GL1);
+    Msg msg;
+    if(Is_MMA_WAKEUP()){
+      MakeMsgGrav_XY(&msg,ADCResult.ADX,ADCResult.ADY);
+      PostMessage(&msg);
+      MakeMsgGrav_Z(&msg,ADCResult.ADZ);
+      PostMessage(&msg);
+    }
+  }
+}
+
+/*******************************************************************************
 * Function Name  : InitialIO
 * Description    : Initial the GPIOs
 * Input          : None
@@ -494,6 +529,35 @@ void InitialIO(void)
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
+  
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
+  
+  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+  
+  // PA8 is the led 
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  // PB4 for PGOOD signal, PB5 for CHG signal
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  // PB8 for GSel 2, PB9 for GSel2, PB11 for MMA Sleep
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  GSel1_Low();
+  GSel2_Low();
+  LED_OFF();
+  MMA_WAKEUP();
+  
 #else
   GPIO_InitTypeDef GPIO_InitStructure;
   RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE);
@@ -522,7 +586,7 @@ void InitialIO(void)
   GSel1_Low();
   GSel2_Low();
   LED_OFF();
-  MMA_WAKEUP();
+  MMA_SLEEP();
 #endif
 }
 
@@ -556,7 +620,7 @@ void SysTickHandler(void)
   }
   static u32 keyDown = 0;
   if(Is_Enc_Key_Down()){
-    if(keyDown){
+    if(keyDown == 1){
       msg.param = 0;
       msg.message = MSG_KEY_DOWN;
       PostMessage(&msg);
@@ -564,7 +628,7 @@ void SysTickHandler(void)
     keyDown++;
   }else{
     if(keyDown > 2){
-      msg.param = 0;
+      msg.param = (void*)keyDown;
       msg.message = MSG_KEY_UP;
       PostMessage(&msg);
     }
@@ -583,7 +647,9 @@ void SysTickHandler(void)
 //  }
   StartPageTransfer();
   
-  ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+  if(Is_MMA_WAKEUP()){
+    ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+  }
 }
 
 /*******************************************************************************
@@ -632,6 +698,7 @@ void NVIC_Configuration(void)
   RegisterIrq(-1,SysTickHandler);
   RegisterIrq(RTC_IRQChannel,RTC_IRQHandler);
   RegisterIrq(DMA1_Channel5_IRQChannel,DMA1_Channel5_IRQHandler);
+  RegisterIrq(DMA1_Channel1_IRQChannel,DMA1_Channel1_IRQHandler);
 #else
 #ifdef  VECT_TAB_RAM  
   /* Set the Vector Table base location at 0x20000000 */ 
@@ -848,6 +915,10 @@ void RTC_IRQHandler(void)
 
     /* Wait until last write operation on RTC registers has finished */
     RTC_WaitForLastTask();
+    if(!Is_MMA_WAKEUP()){
+      // When MMA is power off, use the seoond interrupt
+      ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+    }
   }
 }
 

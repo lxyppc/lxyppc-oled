@@ -65,6 +65,7 @@ D1/Data 3  4  D0/Clk
 
 #define   MMA_SLEEP()     GPIOB->BRR = GPIO_Pin_11
 #define   MMA_WAKEUP()    GPIOB->BSRR = GPIO_Pin_11
+#define   Is_MMA_WAKEUP() (GPIOB->ODR & GPIO_Pin_11)
 
 #define   AD_CH_BAT       ADC_Channel_4
 #define   AD_CH_X         ADC_Channel_1
