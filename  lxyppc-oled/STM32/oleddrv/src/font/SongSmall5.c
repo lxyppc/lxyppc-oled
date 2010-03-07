@@ -5,6 +5,9 @@
 * Date               : 10-03-07
 * Description        : Font data for "ËÎÌå¡¡Ð¡Îå"
 *******************************************************************************/
+
+#define     SongSmall5_English_Height(ch)   (12)
+#define     SongSmall5_English_Width(ch)    (6)
 const struct
 {
     unsigned char data[12];
@@ -300,6 +303,8 @@ const struct
                    0xFF,0xFF,0xFF,0xFF,}},
 };
 
+#define     SongSmall5_Chinese_Height(ch)   (12)
+#define     SongSmall5_Chinese_Width(ch)    (12)
 const struct
 {
     unsigned char data[24];
