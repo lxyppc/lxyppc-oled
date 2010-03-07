@@ -1,15 +1,11 @@
 #ifndef   FONT_H
 #define   FONT_H
 
-typedef struct _FontData
-{
-    unsigned char width;
-    unsigned char height;
-    unsigned char data[32];
-}FontData;
+typedef unsigned long(*pfnFontDrawChar)(pfnDrawBlock_t DrawBlock,Pos_t x, Pos_t y, unsigned int ch);
 
-const FontData* GetFont_fixedsys(unsigned char ch);
+unsigned long SongSmall5_DrawChar(pfnDrawBlock_t DrawBlock,Pos_t x, Pos_t y,unsigned int ch);
 
-extern const FontData fontBuffer_fixedsys[128];
+#define   GetFontTextHeight(pfnFont,ch)    pfnFont(0,0,0,(unsigned char)(ch))
+#define   GetFontTextWidth(pfnFont,ch)     pfnFont(0,1,0,(unsigned char)(ch))
 
 #endif

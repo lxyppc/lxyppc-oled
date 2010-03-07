@@ -31,21 +31,6 @@
 static  u32  minute = 0;
 static  s16 encCount = 0;
 static vu32 TimeDisplay = 0;
-static const FontData world[2] = {
-    /* Char  Code  width, height,  {data}  */
-    {/* 世  0x0000*/      16,    16, {
-                   0x20,0x20,0x20,0xFE,0x20,0x20,0xFE,0x20,
-                   0x20,0x20,0x20,0xFE,0x20,0x20,0x20,0x00,
-                   0x00,0x00,0x00,0x3F,0x20,0x20,0x27,0x22,
-                   0x22,0x22,0x22,0x27,0x30,0x20,0x00,0x00,
-                   }},
-    {/* 界  0x0001*/      16,    16, {
-                   0x00,0x00,0x00,0xFF,0x49,0x49,0x49,0xFF,
-                   0xC9,0x49,0x49,0x49,0xFF,0x00,0x00,0x00,
-                   0x00,0x08,0x08,0x84,0x44,0x22,0x1D,0x00,
-                   0x00,0xFD,0x02,0x02,0x04,0x0C,0x04,0x00,
-                   }},
-};
 static  const char HexTable[] = "0123456789ABCDEF";
 struct{
   u16   ADBat;
@@ -71,11 +56,7 @@ void  GraphTest(void)
 {
   SHORT counter;
   Device dev;
-  InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
-  u8  buf[8];
-  for(u32 i=0;i<8;i++){
-    buf[i] = fontBuffer_fixedsys['a'].data[i]>>4 | fontBuffer_fixedsys['a'].data[8+i]<<4;
-  }
+  InitialDevice(&dev,&SSD1303_Prop,SongSmall5_DrawChar);
   
   while(1){
     SetColor(WHITE);
@@ -161,13 +142,11 @@ void  GraphTest(void)
       /* Output the English characters "Hello" */
       xPos = TextOut(&dev,xPos,yPos,"Hello ",0xFF);
       /* Output the Chinese characters "世界" */
-      xPos = SpecTextOut(&dev,xPos,yPos,world,2);
+      xPos = TextOut(&dev,xPos,yPos,"World",2);
       /* Output the '!' sign */
       //xPos = TextOut(&dev,xPos,yPos,"!",0xFF);
       
       TextOut(&dev,xPos + 8,8, (yPos & 2) ? (yPos&1 ? "\\" : "-" ) : (yPos&1 ? "/" : "|" ),0xFF);
-      SSD1303_DrawBlock(xPos,yPos,8,8,buf);
-      CCW_Rotate(buf,buf);
       
       for(u32 i=2000000;--i;);
     }
@@ -200,7 +179,7 @@ int main(void)
   InitialSystem();
   //GraphTest();
   Device dev;
-  InitialDevice(&dev,&SSD1303_Prop,fontBuffer_fixedsys);
+  InitialDevice(&dev,&SSD1303_Prop,SongSmall5_DrawChar);
   
   //SpecTextOut(&dev,1,10,song_6_fontBuffer,7);
   //while(1);
@@ -650,37 +629,6 @@ void SysTickHandler(void)
   if(Is_MMA_WAKEUP()){
     ADC_SoftwareStartConvCmd(ADC1, ENABLE);
   }
-}
-
-/*******************************************************************************
-* Function Name  : CCW_Rotate
-* Description    : Counter Clock Wise rotate the 8*8 bit map.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void CCW_Rotate(unsigned char *des, const unsigned char *src)
-{
-  unsigned long x,y,t;
-  x = (src[0] << 24) | (src[1] << 16) | (src[2] << 8) | src[3];
-  y = (src[4] << 24) | (src[5] << 16) | (src[6] << 8) | src[7];
-  
-  t = (x & 0xf0f0f0f0) | ((y >> 4) & 0x0f0f0f0f);
-  y = ((x << 4) & 0xf0f0f0f0) | (y & 0x0f0f0f0f);
-  x = t; 
-
-  t = (x ^ (x >> 14)) & 0x0000cccc;
-  x = x ^ t ^ (t << 14);
-  t = (y ^ (y >> 14)) & 0x0000cccc;
-  y = y ^ t ^ (t << 14);
-
-  t = (x ^ (x >> 7)) & 0x00aa00aa;
-  x = x ^ t ^ (t << 7);
-  t = (y ^ (y >> 7)) & 0x00aa00aa;
-  y = y ^ t ^ (t << 7);
-
-  des[7] = x >> 24; des[6] = x >> 16; des[5] = x >> 8; des[4] = x;
-  des[3] = y >> 24; des[2] = y >> 16; des[1] = y >> 8; des[0] = y; 
 }
 
 /*******************************************************************************

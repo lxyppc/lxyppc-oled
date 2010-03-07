@@ -3571,6 +3571,9 @@
       <name>$PROJ_DIR$\src\stm32f10x_vector.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\src\StringResource.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\src\UserMenu.c</name>
     </file>
   </group>

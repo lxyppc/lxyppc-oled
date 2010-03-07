@@ -22,17 +22,13 @@
 /* Private variables ---------------------------------------------------------*/
 static  const   MenuItem*    curMenuItem;
 static  u8      preQuit = 0;
-static  Device  menuDev;
-extern  LPCSTR MenuText_En[];
-extern  LPCSTR MenuText_Cn[];
-static  LPCSTR* curLang = MenuText_En;
+extern  const LPCSTR* curLang;
 extern  const MenuItem  MainMenu[];
 extern  const MenuItem  RootMenu;
 static  MenuFunc_t menuProc = 0;
-
+extern  Device    appDevice;
 /* Private function prototypes -----------------------------------------------*/
 void  UpdateMenu(void);
-MenuResult RootApp(void* param, Msg* msg);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -45,11 +41,11 @@ MenuResult RootApp(void* param, Msg* msg);
 *******************************************************************************/
 MenuFunc_t    InitialMenu()
 {
-  InitialDevice(&menuDev,&SSD1303_Prop,fontBuffer_fixedsys);
+  InitialDevice(&appDevice,&SSD1303_Prop,SongSmall5_DrawChar);
   curMenuItem = MainMenu;
-  menuProc = RootApp;
+  menuProc = RootMenu.pfnMenu;
   Msg msg = {.param = 0, .message = MSG_INIT};
-  RootApp(0,&msg);
+  menuProc(0,&msg);
   return MR_Finish;
 }
 
@@ -137,11 +133,11 @@ void  UpdateMenu(void)
   }
   Pos_t x;
   if(preQuit){
-    x = TextOut_HighLight(&menuDev, 0, 0, text ,0xFF);
+    x = TextOut_HighLight(&appDevice, 0, 0, text ,0xFF);
   }else{
-    x = TextOut(&menuDev, 0, 0, text ,0xFF);
+    x = TextOut(&appDevice, 0, 0, text ,0xFF);
   }
-  TextOut(&menuDev, x, 0, "<<" ,0xFF);
+  TextOut(&appDevice, x, 0, "<<" ,0xFF);
   
   Pos_t y = MENU_HEIGHT + MARGIN;
   const MenuItem* items = curMenuItem;
@@ -151,9 +147,9 @@ void  UpdateMenu(void)
   for(u32 i=0; i<4; i++){
     text = curLang[items->res];
     if(items == curMenuItem && !preQuit){
-      TextOut_HighLight(&menuDev, LEFT_MARGIN, y, text ,0xFF);
+      TextOut_HighLight(&appDevice, LEFT_MARGIN, y, text ,0xFF);
     }else{
-      TextOut(&menuDev, LEFT_MARGIN, y, text ,0xFF);
+      TextOut(&appDevice, LEFT_MARGIN, y, text ,0xFF);
     }
     if(items->index + 1 == items->cnt){
       break;

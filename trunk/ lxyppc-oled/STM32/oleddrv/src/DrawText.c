@@ -79,7 +79,7 @@ unsigned long  TextOut_HighLight(
   Size_t len)
 {
   Pos_t res = TextOut(pDev, x, y, text, len);
-  SSD1303_DrawBlock(x,y,res-x,pDev->font->height,0);
+  SSD1303_DrawBlock(x,y,res-x,GetFontTextHeight(pDev->pfnFont,*text),0);
   return res;
 }
 
@@ -98,11 +98,11 @@ unsigned long SpecTextOut_HighLight(
   Device* pDev,
   Pos_t x,
   Pos_t y,
-  const FontData* textDot,
+  const pfnFontDrawChar pfnFont,
   Size_t len)
 {
-  Pos_t res = SpecTextOut(pDev, x, y, textDot, len);
-  SSD1303_DrawBlock(x,y,res-x,textDot->height,0);
+  Pos_t res = SpecTextOut(pDev, x, y, pfnFont, len);
+  SSD1303_DrawBlock(x,y,res-x,GetFontTextHeight(pfnFont,0),0);
   return res;
 }
 
@@ -117,14 +117,14 @@ unsigned long SpecTextOut_HighLight(
 * Output         : None
 * Return         : End x position for the last character
 *******************************************************************************/
-Pos_t SpecTextOut(Device* pDev, Pos_t x, Pos_t y, const FontData* textDot, Size_t len)
+Pos_t SpecTextOut(Device* pDev, Pos_t x, Pos_t y,const pfnFontDrawChar pfnFont, Size_t len)
 {
-  const FontData* old = pDev->font;
-  pDev->font = textDot;
+  pfnFontDrawChar old = pDev->pfnFont;
+  pDev->pfnFont = pfnFont;
   for(unsigned long i=0;i<len;i++){
     x += DrawChar(pDev,x,y,i);
   }
-  pDev->font = old;
+  pDev->pfnFont = old;
   return x;
 }
 
@@ -140,9 +140,10 @@ Pos_t SpecTextOut(Device* pDev, Pos_t x, Pos_t y, const FontData* textDot, Size_
 *******************************************************************************/
 Pos_t  DrawChar(Device* pDev, Pos_t x, Pos_t y, char ch)
 {
-  const FontData* ft = &pDev->font[ch];
-  pDev->pDevProp->pfnDrawBlok(x,y,ft->width,ft->height,ft->data);
-  return ft->width;
+  return pDev->pfnFont(pDev->pDevProp->pfnDrawBlok,x,y,(unsigned char)ch);
+  //FontData ft = &pDev->font[ch];
+  //pDev->pDevProp->pfnDrawBlok(x,y,ft->width,ft->height,ft->data);
+  //return ft->width;
 }
 
 /*******************************************************************************
@@ -153,10 +154,10 @@ Pos_t  DrawChar(Device* pDev, Pos_t x, Pos_t y, char ch)
 * Output         : Device*          device pointer
 * Return         : End x position for the last character
 *******************************************************************************/
-void  InitialDevice(Device* pDev, const DeviceProp* pDevProp, const FontData* pFont)
+void  InitialDevice(Device* pDev, const DeviceProp* pDevProp, pfnFontDrawChar pfnFont)
 {
   pDev->pDevProp = pDevProp;
-  pDev->font = pFont;
+  pDev->pfnFont = pfnFont;
   pDev->curX = 0;
   pDev->curY = 0;
 }
