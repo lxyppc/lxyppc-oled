@@ -10,6 +10,7 @@
 #include "stm32f10x_lib.h"
 #include "ClockUI.h"
 #include "Graphics\Graphics.h"  // Graphic primitives layer
+#include "SSD1303.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -37,35 +38,47 @@ s16   COS(s16 x){ return SIN(x+16384); }
 * Output         : None
 * Return         : None
 *******************************************************************************/
+const u8 ClockFaceData[64*8] = {
+0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,16,96,128,4,0,0,2,0,0,1,0,0,1,0,0,15,15,15,0,1,0,0,1,0,0,2,0,0,4,128,96,16,0,0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,32,0,4,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,4,0,32,0,0,0,0,0,0,0,
+0,64,8,0,1,1,2,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,2,2,1,1,0,8,64,0,0,
+210,192,192,192,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,192,224,224,224,192,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,192,192,192,210,0,
+73,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,73,0,
+0,2,16,0,128,64,32,32,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,32,64,128,128,0,16,2,0,0,
+0,0,0,0,0,0,4,0,32,0,128,0,0,0,0,0,0,0,128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,128,0,0,0,0,0,0,0,0,128,0,32,0,4,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,8,6,1,32,0,0,64,0,0,128,0,0,128,0,0,240,240,240,0,128,0,0,128,0,0,64,0,0,32,1,6,8,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+};
 void Clock_DrawFace(Pos_t x, Pos_t y, Size_t radius)
 {
   clockX = x;
   clockY = y;
   clockRadius = radius;
-  SetColor(BLACK);
-  FillCircle(clockX,clockY,clockRadius);
+  //SetColor(BLACK);
+  //FillCircle(clockX,clockY,clockRadius);
   SetColor(WHITE);
+  SSD1303_DrawBlock(0,0,64,64,ClockFaceData);
+  
   //Circle(clockX,clockY,clockRadius);
-  FillCircle(clockX,clockY,2);
-  s32 angle = 0;
-  Size_t inner = radius - CLOCK_MARK_LEN;
-  for(u32 i=0;i<60;i++){    
-    Pos_t x0 = COS(angle*32768/180)*inner/32768;
-    Pos_t y0 = SIN(angle*32768/180)*inner/32768;
-    Pos_t x1 = COS(angle*32768/180)*radius/32768;
-    Pos_t y1 = SIN(angle*32768/180)*radius/32768;
-    if(i%15 == 0){
-      SetLineThickness(THICK_LINE);
-    }else{
-      SetLineThickness(NORMAL_LINE);
-    }
-    if(i%5 == 0){
-      Line(x0+clockX,y0+clockY,x1+clockX,y1+clockY);
-    }else{
-      PutPixel(x1+clockX,y1+clockY);
-    }
-    angle+=360/60;
-  }
+//  FillCircle(clockX,clockY,2);
+//  s32 angle = 0;
+//  Size_t inner = radius - CLOCK_MARK_LEN;
+//  for(u32 i=0;i<60;i++){    
+//    Pos_t x0 = COS(angle*32768/180)*inner/32768;
+//    Pos_t y0 = SIN(angle*32768/180)*inner/32768;
+//    Pos_t x1 = COS(angle*32768/180)*radius/32768;
+//    Pos_t y1 = SIN(angle*32768/180)*radius/32768;
+//    if(i%15 == 0){
+//      SetLineThickness(THICK_LINE);
+//    }else{
+//      SetLineThickness(NORMAL_LINE);
+//    }
+//    if(i%5 == 0){
+//      Line(x0+clockX,y0+clockY,x1+clockX,y1+clockY);
+//    }else{
+//      PutPixel(x1+clockX,y1+clockY);
+//    }
+//    angle+=360/60;
+//  }
 }
 
 /*******************************************************************************
@@ -84,10 +97,11 @@ void  Clock_UpdateTime(u8 hour, u8 minute, u8 second)
   
   SetLineThickness(NORMAL_LINE);
   /* Draw second */
+  SetLineType(DOTTED_LINE);
   x1 = COS(second*32768/30 - 32768/2)*radius/32768;
   y1 = SIN(second*32768/30 - 32768/2)*radius/32768;
   Line(clockX,clockY,x1+clockX,y1+clockY);
-  
+  SetLineType(SOLID_LINE);
   /* Draw minute */
   x1 = COS(minute*32768/30 - 32768/2)*radius/32768;
   y1 = SIN(minute*32768/30 - 32768/2)*radius/32768;
