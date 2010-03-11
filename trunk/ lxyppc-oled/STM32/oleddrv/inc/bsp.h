@@ -72,11 +72,22 @@ D1/Data 3  4  D0/Clk
 #define   AD_CH_Y         ADC_Channel_2
 #define   AD_CH_Z         ADC_Channel_3
 #define   AD_CH_CHG       ADC_Channel_9
+#define   AD_CH_REF       ADC_Channel_17
 
 #define   DMA_SSD_1303    DMA1_Channel5
 #define   DMA_Handler_SSD_1303    DMA1_Channel5_IRQHandler
 #define   DMA_ADC         DMA1_Channel1
 
 #define   Is_Enc_Key_Down()    (!(GPIOA->IDR & GPIO_Pin_0))
+
+typedef   struct  _ADResult_t
+{
+  u16   ADRef;    // ADC1 
+  u16   ADBat;    // ADC2
+  u16   ADX;      // ADC1
+  u16   ADY;      // ADC2
+  u16   ADZ;      // ADC1
+  u16   ADChg;    // ADC2
+}ADResult_t;
 
 #endif
