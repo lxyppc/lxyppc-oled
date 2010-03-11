@@ -33,12 +33,7 @@ extern  const MenuItem    StatusMenu[];
 extern  const MenuItem    LanguageMenu[];
 const LPCSTR* curLang = StringTable_CHS;
 Device    appDevice;
-extern  struct{
-  u16   ADBat;
-  u16   ADX;
-  u16   ADY;
-  u16   ADZ;
-}ADCResult;
+extern    ADResult_t  ADCResult;
 
 #define   LoadString(STR_ID)      curLang[(STR_ID)]
 // January is 0
@@ -631,7 +626,9 @@ MenuResult OnMeasureBat(void* param, Msg* msg)
       Pos_t x = TextOut(&appDevice,10,32,LoadString(STR_BAT_CAPACITY),0xFF);
       x = TextOut(&appDevice,x,32,buf,4);
       res = ADCResult.ADBat;
-      res = res * 328 * 136 / (4096*100);
+      res = ((res*136*120) / ADCResult.ADRef) / 100;
+      
+      //res = res * 328 * 136 / (4096*100);
       char ADBuf[] = {(res/100)%10+'0', '.', 
       (res/10)%10+'0', res%10+'0','V', 0};
       x = TextOut(&appDevice,10,48,LoadString(STR_BAT_VOLTAGE),0xFF);

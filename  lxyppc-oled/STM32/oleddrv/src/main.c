@@ -32,12 +32,7 @@ static  u32  minute = 0;
 static  s16 encCount = 0;
 static vu32 TimeDisplay = 0;
 static  const char HexTable[] = "0123456789ABCDEF";
-struct{
-  u16   ADBat;
-  u16   ADX;
-  u16   ADY;
-  u16   ADZ;
-}ADCResult;
+ADResult_t    ADCResult;
 
 /* Private function prototypes -----------------------------------------------*/
 void RCC_Configuration(void);
@@ -413,14 +408,16 @@ void InitialADC(void)
     //ADC_ExternalTrigConv_T3_TRGO;
     //ADC_ExternalTrigConv_T2_CC2;
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfChannel = 2;
+  ADC_InitStructure.ADC_NbrOfChannel = 3;
   ADC_Init(ADC1, &ADC_InitStructure);
   ADC_Init(ADC2, &ADC_InitStructure);
   
-  ADC_RegularChannelConfig(ADC1, AD_CH_BAT, 1, ADC_SampleTime_13Cycles5);
-  ADC_RegularChannelConfig(ADC2, AD_CH_X, 1, ADC_SampleTime_13Cycles5);
-  ADC_RegularChannelConfig(ADC1, AD_CH_Y, 2, ADC_SampleTime_13Cycles5);
-  ADC_RegularChannelConfig(ADC2, AD_CH_Z, 2, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_REF, 1, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_BAT, 1, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_X,   2, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_Y,   2, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC1, AD_CH_Z,   3, ADC_SampleTime_13Cycles5);
+  ADC_RegularChannelConfig(ADC2, AD_CH_CHG, 3, ADC_SampleTime_13Cycles5);
   
   /* Initialize the ADC DMA channel */
   ADC_DMACmd(ADC1,ENABLE);
@@ -428,7 +425,7 @@ void InitialADC(void)
   DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)(&ADC1->DR);
   DMA_InitStructure.DMA_MemoryBaseAddr = (u32)&ADCResult;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-  DMA_InitStructure.DMA_BufferSize = 2;
+  DMA_InitStructure.DMA_BufferSize = 3;
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
@@ -448,7 +445,8 @@ void InitialADC(void)
   
   DMA_Cmd(DMA_ADC, ENABLE);
   
-  
+  ADC_TempSensorVrefintCmd(ENABLE);
+    
   //ADC_ExternalTrigConvCmd(ADC1, ENABLE);
   ADC_ExternalTrigConvCmd(ADC2, ENABLE);
   ADC_Cmd(ADC1, ENABLE);
