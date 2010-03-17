@@ -45,7 +45,9 @@ void Initial_Tim2(void);
 void InitialIO(void);
 void InitialADC(void);
 void InitialSystem();
-
+#ifdef    DEBUG_UI
+u32  InitialUIDebugger(u16 width, u16 height, u16 depth, u8* buffer);
+#endif
 /* Private functions ---------------------------------------------------------*/
 void  GraphTest(void)
 {
@@ -188,7 +190,6 @@ int main(void)
   
   Clock_DrawFace(GetMaxY()>>1,GetMaxY()>>1,GetMaxY()>>1);
   //Line(counter,0,GetMaxX()-1-counter,GetMaxY()-1);
-  u32 lastM = minute;
   while(1){
     static  Msg msg;
     if(!GetMessage(&msg))continue;
@@ -339,6 +340,9 @@ void InitialSystem()
   InitialADC();
   
   /* Initializer system colck */
+#ifdef  DEBUG_UI
+  InitialUIDebugger(128, 64, 1, SSD1303_GetBuffer());
+#else
   RCC_DeInit();
   CheckConnection();
   
@@ -347,9 +351,10 @@ void InitialSystem()
   
   /* Initialize the SSD1303 */
   SSD1303_Init();
+#endif
   
   /* Initialize the SSD1303 controller,
-     which is simulated by STM32 DMA and systick*/
+  which is simulated by STM32 DMA and systick*/
   SSD1303_Controller_Init();
   
   /* Initialize the RTC peripheral */
@@ -622,7 +627,9 @@ void SysTickHandler(void)
 //      minute = 59;
 //    }
 //  }
+#ifndef  DEBUG_UI
   StartPageTransfer();
+#endif
   
   if(Is_MMA_WAKEUP()){
     ADC_SoftwareStartConvCmd(ADC1, ENABLE);
