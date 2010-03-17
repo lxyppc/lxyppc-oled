@@ -40,7 +40,10 @@ void  WriteData(unsigned char data);
 void  OnPageTransferDone(void);
 unsigned long SSD1303_OFF(void);
 unsigned long SSD1303_ON(void);
-
+unsigned char* SSD1303_GetBuffer()
+{
+  return SSD1303_Buffer;
+}
 /*******************************************************************************
 * Function Name  : WriteCommand
 * Description    : Write command to the SSD1303
@@ -219,12 +222,18 @@ unsigned char SSD1303_GetContrast()
 unsigned long SSD1303_OFF(void)
 {
   if(iS_SSD_On){
+#ifdef  DEBUG_UI
+    for(u32 i=0;i<SSD1303_COLUMN_NUMBER*SSD1303_PAGE_NUMBER;i++){
+      SSD1303_Buffer[i] = 0;
+    }
+#else
     // Turn off the display
     WriteCommand(0xae);
     
     // Set Charge pump
     WriteCommand(0x8D); /* Set Charge pump */
     WriteCommand(0x10); /* 0x14=ON, 0x10=Off */
+#endif
     iS_SSD_On = 0;
   }
   return iS_SSD_On;
@@ -241,14 +250,17 @@ unsigned long SSD1303_OFF(void)
 unsigned long SSD1303_ON(void)
 {
   if(!iS_SSD_On){
-#ifdef    DEBUG_BOARD
+#ifdef  DEBUG_UI
 #else
+  #ifdef    DEBUG_BOARD
+  #else
     // Set Charge pump
     WriteCommand(0x8D); /* Set Charge pump */
     WriteCommand(0x14); /* 0x14=ON, 0x10=Off */
-#endif
+  #endif
     // Turn on the display
     WriteCommand(0xaf);
+#endif
     iS_SSD_On = 1;
   }
   return iS_SSD_On;
