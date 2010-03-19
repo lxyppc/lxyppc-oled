@@ -12,6 +12,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HidLoader", "HidLoader\HidL
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JpegTest", "JpegTest\JpegTest_2003.vcproj", "{F1573AEB-638F-45A2-9F57-542B914A9367}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -30,6 +34,10 @@ Global
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Debug.Build.0 = Debug|Win32
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Release.ActiveCfg = Release|Win32
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Release.Build.0 = Release|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Debug.ActiveCfg = Debug|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Debug.Build.0 = Debug|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Release.ActiveCfg = Release|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
