@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FontGen", "FontGen\FontGen.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HidLoader", "HidLoader\HidLoader.vcproj", "{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JpegTest", "JpegTest\JpegTest.vcproj", "{F1573AEB-638F-45A2-9F57-542B914A9367}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Debug|Win32.Build.0 = Debug|Win32
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Release|Win32.ActiveCfg = Release|Win32
 		{8FD2CC70-E6F2-467C-BD2F-3012F5492F2E}.Release|Win32.Build.0 = Release|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Debug|Win32.Build.0 = Debug|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Release|Win32.ActiveCfg = Release|Win32
+		{F1573AEB-638F-45A2-9F57-542B914A9367}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

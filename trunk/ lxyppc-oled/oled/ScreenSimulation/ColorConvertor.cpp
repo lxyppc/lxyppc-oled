@@ -36,10 +36,12 @@ BOOL ConvertImage(
     ColorFormat srcColorFormat)
 {
     if(pDes && pSrc && scale>0 && scale<16 && width>0 && height>0){
-        if(scale*width*height*scale > desSize)return FALSE;
         switch(desColotFormat){
             case CF_RGB888:
+                if(scale*width*height*scale*4 > desSize)return FALSE;
                 return ConvertImageRGB888(pDes,pSrc,width,height,scale,srcColorFormat);
+            case CF_GRAY8:
+                //return ConvertImageGray8(pDes,pSrc,width,height,scale,srcColorFormat);
             default:
                 return FALSE;
         }

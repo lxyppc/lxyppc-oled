@@ -193,7 +193,7 @@ BOOL CScreenSimulationDlg::DisplayData(const void* pData, long width, long heigh
         m_virtualCy = height*scale;
         m_pDisplayBuffer = new DWORD[m_virtualCx*m_virtualCy];
     }
-    ConvertImage(m_pDisplayBuffer,pData,m_virtualCx*m_virtualCy,width,height,scale,CF_RGB888,colorFormat);
+    ConvertImage(m_pDisplayBuffer,pData,m_virtualCx*m_virtualCy*sizeof(DWORD),width,height,scale,CF_RGB888,colorFormat);
     LONG margin = 10;
     SetItemPosition(IDC_VIR_SCREEN, margin,margin,m_virtualCx,m_virtualCy);
     CDC* pDC = m_virtualScreen.GetDC();
