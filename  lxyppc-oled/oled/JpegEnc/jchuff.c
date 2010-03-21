@@ -243,6 +243,7 @@ jpeg_make_c_derived_tbl (j_compress_ptr cinfo, boolean isDC, int tblno,
     dtbl->ehufco[i] = huffcode[p];
     dtbl->ehufsi[i] = huffsize[p];
   }
+  JH_OnCreate_Table(pJH,isDC,tblno,huffcode,huffsize,lastp);
 }
 
 
@@ -949,17 +950,21 @@ encode_one_block (working_state * state, JCOEFPTR block, int last_dc_val,
   if (! emit_bits_s(state, dctbl->ehufco[nbits], dctbl->ehufsi[nbits]))
     return FALSE;
 
+  JH_Block_OnDCStream(pJH,dctbl->ehufco[nbits], dctbl->ehufsi[nbits]);
   /* Emit that number of bits of the value, if positive, */
   /* or the complement of its magnitude, if negative. */
   if (nbits)			/* emit_bits rejects calls with size 0 */
     if (! emit_bits_s(state, (unsigned int) temp2, nbits))
       return FALSE;
 
+  if(nbits)
+      JH_Block_OnDCStream(pJH,(unsigned int)temp2, nbits);
   /* Encode the AC coefficients per section F.1.2.2 */
 
   r = 0;			/* r = run length of zeros */
 
   for (k = 1; k <= Se; k++) {
+      JH_Block_OnAC(pJH,block[k],8);
     if ((temp = block[natural_order[k]]) == 0) {
       r++;
     } else {
@@ -968,6 +973,7 @@ encode_one_block (working_state * state, JCOEFPTR block, int last_dc_val,
 	if (! emit_bits_s(state, actbl->ehufco[0xF0], actbl->ehufsi[0xF0]))
 	  return FALSE;
 	r -= 16;
+    JH_Block_OnACStream(pJH,actbl->ehufco[0xF0], actbl->ehufsi[0xF0]);
       }
 
       temp2 = temp;
@@ -989,12 +995,13 @@ encode_one_block (working_state * state, JCOEFPTR block, int last_dc_val,
       i = (r << 4) + nbits;
       if (! emit_bits_s(state, actbl->ehufco[i], actbl->ehufsi[i]))
 	return FALSE;
+      JH_Block_OnACStream(pJH,actbl->ehufco[i], actbl->ehufsi[i]);
 
       /* Emit that number of bits of the value, if positive, */
       /* or the complement of its magnitude, if negative. */
       if (! emit_bits_s(state, (unsigned int) temp2, nbits))
 	return FALSE;
-
+      JH_Block_OnACStream(pJH, (unsigned int) temp2, nbits);
       r = 0;
     }
   }
@@ -1004,6 +1011,8 @@ encode_one_block (working_state * state, JCOEFPTR block, int last_dc_val,
     if (! emit_bits_s(state, actbl->ehufco[0], actbl->ehufsi[0]))
       return FALSE;
 
+  if(r>0)
+      JH_Block_OnACStream(pJH, actbl->ehufco[0], actbl->ehufsi[0]);
   return TRUE;
 }
 
@@ -1032,11 +1041,13 @@ encode_mcu_huff (j_compress_ptr cinfo, JBLOCKROW *MCU_data)
       if (! emit_restart_s(&state, entropy->next_restart_num))
 	return FALSE;
   }
-
+  JH_MCU_Start(pJH);
   /* Encode the MCU data blocks */
   for (blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
     ci = cinfo->MCU_membership[blkn];
     compptr = cinfo->cur_comp_info[ci];
+    JH_Block_Start(pJH);
+    JH_Block_OnDC(pJH,MCU_data[blkn][0][0],16,compptr->dc_tbl_no,ci);
     if (! encode_one_block(&state,
 			   MCU_data[blkn][0], state.cur.last_dc_val[ci],
 			   entropy->dc_derived_tbls[compptr->dc_tbl_no],
@@ -1044,7 +1055,9 @@ encode_mcu_huff (j_compress_ptr cinfo, JBLOCKROW *MCU_data)
       return FALSE;
     /* Update last_dc_val */
     state.cur.last_dc_val[ci] = MCU_data[blkn][0][0];
+    JH_Block_End(pJH);
   }
+  JH_MCU_End(pJH);
 
   /* Completed MCU, so update state */
   cinfo->dest->next_output_byte = state.next_output_byte;
