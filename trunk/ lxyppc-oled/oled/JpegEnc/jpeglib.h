@@ -1154,5 +1154,5 @@ struct jpeg_color_quantizer { long dummy; };
 }
 #endif
 #endif
-
+#include "JpegHook.h"
 #endif /* JPEGLIB_H */

@@ -111,6 +111,7 @@ emit_byte (j_compress_ptr cinfo, int val)
 {
   struct jpeg_destination_mgr * dest = cinfo->dest;
 
+  JH_Global_GetOneByte(pJH,val);
   *(dest->next_output_byte)++ = (JOCTET) val;
   if (--dest->free_in_buffer == 0) {
     if (! (*dest->empty_output_buffer) (cinfo))
@@ -342,6 +343,7 @@ emit_sos (j_compress_ptr cinfo)
   emit_byte(cinfo, cinfo->Ss);
   emit_byte(cinfo, cinfo->Se);
   emit_byte(cinfo, (cinfo->Ah << 4) + cinfo->Al);
+  JH_OnScanStart(pJH);
 }
 
 
@@ -360,6 +362,21 @@ emit_pseudo_sos (j_compress_ptr cinfo)
   emit_byte(cinfo, 0); /* Ah/Al */
 }
 
+extern  char UserComment[];
+LOCAL(void)
+emit_user_comment(j_compress_ptr cinfo)
+/* Emit a user prdefined comment */
+{
+    /* Here the comment */
+    int strLength = (int)strlen(UserComment);
+    int i = 0;
+    emit_marker(cinfo, M_COM);
+    emit_2bytes(cinfo, 2 + strLength + 1);
+    for(i=0;i<strLength;i++){
+        emit_byte(cinfo,UserComment[i]);
+    }
+    emit_byte(cinfo,0);
+}
 
 LOCAL(void)
 emit_jfif_app0 (j_compress_ptr cinfo)
@@ -495,6 +512,8 @@ write_file_header (j_compress_ptr cinfo)
     emit_jfif_app0(cinfo);
   if (cinfo->write_Adobe_marker) /* next an optional Adobe APP14 */
     emit_adobe_app14(cinfo);
+
+  emit_user_comment(cinfo);
 }
 
 
