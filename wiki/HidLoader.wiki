@@ -1,8 +1,8 @@
-#A program running on the PC, witch can load new firmware to the STM32.
+A program running on the PC, witch can load new firmware to the STM32.
 
 = Introduction =
 
-Drag the hex file generate by compiler to the program, then click *Update* button.
+Drag the hex file generate by compiler to this program, then click *Update* button.
 After update success, click the *Run App* button, the new firmware will running.
 
 
