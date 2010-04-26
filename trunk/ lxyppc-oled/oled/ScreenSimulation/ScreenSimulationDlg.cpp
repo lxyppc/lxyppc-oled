@@ -207,13 +207,17 @@ BOOL CScreenSimulationDlg::DisplayData(const void* pData, long width, long heigh
     return TRUE;
 }
 
+#include "image.h"
+BYTE buf[WIDTH*HEIGHT*3] = {RGB_DATA};
 void CScreenSimulationDlg::OnBnClickedTest()
 {
     // TODO: Add your control notification handler code here
-    BYTE buf[1024] = {0xFF,0,0xFF,0,0xFF,0,0xFF,0,
+    BYTE buf2[1024*8*3] = {0xFF,0,0xFF,0,0xFF,0,0xFF,0,
                     0,0x80,0,0x80,0,0x80,0,0x80,
                     0x40,0,0x40,0,0x40,0,0x40,0,
                     0,0xC0,0,0xC0,0,0xC0,0,0xC0,};
-    memset(buf+32,0xff,1024-32);
-    DisplayData(buf,128,64,4,CF_GRAY1);
+    
+    memset(buf2+32,0xff,1024-32);
+    DisplayData(buf,WIDTH,HEIGHT,3, CF_RGB888);
+        //CF_GRAY1);
 }
